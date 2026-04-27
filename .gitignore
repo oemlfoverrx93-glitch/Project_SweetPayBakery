@@ -1,0 +1,33 @@
+# NetBeans
+/nbproject/private/
+/build/
+/dist/
+/target/
+
+# Compiled files
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+
+# Tomcat temporary files
+/work/
+temp/
+
+# Environment / config sensitive files
+.env
+*.properties.local
+
+# SQL Server backup files
+*.bak
