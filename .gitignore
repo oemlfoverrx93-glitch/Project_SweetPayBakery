@@ -31,3 +31,4 @@ temp/
 
 # SQL Server backup files
 *.bak
+*.tmp
