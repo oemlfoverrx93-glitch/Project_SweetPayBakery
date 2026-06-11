@@ -68,11 +68,9 @@ Hệ thống sử dụng **Microsoft SQL Server** với 10 bảng chính:
 | `inventory` | Tồn kho |
 | `payments` | Bản ghi thanh toán |
 
-> Xem chi tiết thiết kế tại [`BAO_CAO_THIET_KE_CSDL.md`](BAO_CAO_THIET_KE_CSDL.md) và sơ đồ ERD tại [`BAO_CAO_ERD.png`](BAO_CAO_ERD.png).
-
 ---
 
-## ⚙️ Yêu cầu môi trường
+## Yêu cầu môi trường
 
 | Thành phần | Phiên bản khuyến nghị |
 |---|---|
@@ -179,7 +177,7 @@ http://localhost:8080/SweetBakery/
 
 ## Đóng góp
 
-1. Fork repository
+1. Fork the repository
 2. Tạo branch mới: `git checkout -b feature/ten-tinh-nang`
 3. Commit thay đổi: `git commit -m "feat: mô tả thay đổi"`
 4. Push branch: `git push origin feature/ten-tinh-nang`
