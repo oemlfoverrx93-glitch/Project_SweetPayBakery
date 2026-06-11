@@ -14,8 +14,12 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class OrderDAO {
+
+    private static final Logger LOGGER = Logger.getLogger(OrderDAO.class.getName());
 
     private static final String CREATE_ORDERS_TABLE_SQL =
             "IF OBJECT_ID('dbo.orders', 'U') IS NULL "
@@ -111,6 +115,7 @@ public class OrderDAO {
 
             int orderId = insertOrder(conn, order);
             if (orderId <= 0) {
+                LOGGER.warning("[placeOrder] insertOrder returned <= 0, rolling back.");
                 conn.rollback();
                 return -1;
             }
@@ -122,11 +127,13 @@ public class OrderDAO {
             }
 
             if (!orderDetailDAO.insertBatch(conn, orderDetails)) {
+                LOGGER.warning("[placeOrder] insertBatch for order_details failed, rolling back.");
                 conn.rollback();
                 return -1;
             }
 
             if (!decreaseInventoryForOrder(conn, orderDetails)) {
+                LOGGER.warning("[placeOrder] decreaseInventory failed (out of stock?), rolling back.");
                 conn.rollback();
                 return -1;
             }
@@ -139,6 +146,7 @@ public class OrderDAO {
 
                 int paymentId = paymentDAO.insertPayment(conn, payment);
                 if (paymentId <= 0) {
+                    LOGGER.warning("[placeOrder] insertPayment failed, rolling back.");
                     conn.rollback();
                     return -1;
                 }
@@ -147,9 +155,9 @@ public class OrderDAO {
             conn.commit();
             return orderId;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "[placeOrder] Exception caught, rolling back.", e);
             rollbackQuietly(conn);
-            return -1;
+            throw new RuntimeException("placeOrder failed: " + e.getMessage(), e);
         } finally {
             resetAutoCommitAndClose(conn);
         }
@@ -429,11 +437,13 @@ public class OrderDAO {
             return -1;
         }
 
+        // total_amount is included explicitly to support both computed-column DBs
+        // and regular-column DBs (where it would be NULL without this).
         String insertOrderSql = "INSERT INTO orders ("
                 + "user_id, voucher_id, order_code, recipient_name, recipient_phone, shipping_address, "
-                + "receive_method, receive_time, subtotal, discount_amount, shipping_fee, "
+                + "receive_method, receive_time, subtotal, discount_amount, shipping_fee, total_amount, "
                 + "order_status, note, order_date"
-                + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement psOrder = conn.prepareStatement(insertOrderSql, Statement.RETURN_GENERATED_KEYS)) {
             BigDecimal subtotal = defaultMoney(order.getSubtotal());
@@ -442,6 +452,9 @@ public class OrderDAO {
             BigDecimal total = order.getTotalAmount();
             if (total == null) {
                 total = subtotal.subtract(discount).add(shipping);
+            }
+            if (total.compareTo(BigDecimal.ZERO) < 0) {
+                total = BigDecimal.ZERO;
             }
             order.setTotalAmount(total);
 
@@ -456,9 +469,10 @@ public class OrderDAO {
             psOrder.setBigDecimal(9, subtotal);
             psOrder.setBigDecimal(10, discount);
             psOrder.setBigDecimal(11, shipping);
-            psOrder.setString(12, defaultString(order.getOrderStatus(), "pending"));
-            psOrder.setString(13, order.getNote());
-            psOrder.setTimestamp(14, order.getOrderDate() != null ? order.getOrderDate() : new Timestamp(System.currentTimeMillis()));
+            psOrder.setBigDecimal(12, total);                     // <-- fix: explicit total_amount
+            psOrder.setString(13, defaultString(order.getOrderStatus(), "pending"));
+            psOrder.setString(14, order.getNote());
+            psOrder.setTimestamp(15, order.getOrderDate() != null ? order.getOrderDate() : new Timestamp(System.currentTimeMillis()));
 
             psOrder.executeUpdate();
 

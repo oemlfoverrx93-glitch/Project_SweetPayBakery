@@ -14,6 +14,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -54,7 +56,7 @@ public class PlaceOrderServlet extends HttpServlet {
 
         if (recipientName == null || recipientPhone == null || shippingAddress == null) {
             forwardCheckoutWithError(request, response, userId, calculateTotal(cart), voucherCode,
-                    "Please fill all required fields.");
+                    "Vui lòng nhập đầy đủ thông tin nhận hàng.");
             return;
         }
 
@@ -73,9 +75,9 @@ public class PlaceOrderServlet extends HttpServlet {
             if (availableStock != null && quantity > availableStock) {
                 String productName = item.getProduct().getProductName() != null
                         ? item.getProduct().getProductName()
-                        : "This product";
+                        : "Sản phẩm này";
                 forwardCheckoutWithError(request, response, userId, calculateTotal(cart), voucherCode,
-                        productName + " only has " + availableStock + " item(s) left in stock.");
+                        productName + " chỉ còn " + availableStock + " sản phẩm trong kho.");
                 return;
             }
 
@@ -144,16 +146,29 @@ public class PlaceOrderServlet extends HttpServlet {
         payment.setPaymentStatus("COD".equals(paymentMethod) ? "unpaid" : "pending");
 
         OrderDAO orderDAO = new OrderDAO();
-        int orderId = orderDAO.placeOrder(order, details, payment);
+        int orderId;
+        try {
+            orderId = orderDAO.placeOrder(order, details, payment);
+        } catch (Exception ex) {
+            Logger.getLogger(PlaceOrderServlet.class.getName()).log(Level.SEVERE,
+                    "[PlaceOrder] Exception during placeOrder", ex);
+            forwardCheckoutWithError(request, response, userId, totalAmount, voucherCode,
+                    "Lỗi hệ thống: " + ex.getMessage());
+            return;
+        }
 
         if (orderId > 0) {
             session.removeAttribute("cart");
-            response.sendRedirect(request.getContextPath() + "/order-success?id=" + orderId);
+            if ("BANK_TRANSFER".equals(paymentMethod)) {
+                response.sendRedirect(request.getContextPath() + "/payment?orderId=" + orderId);
+            } else {
+                response.sendRedirect(request.getContextPath() + "/order-success?id=" + orderId);
+            }
             return;
         }
 
         forwardCheckoutWithError(request, response, userId, totalAmount, voucherCode,
-                "Place order failed. Please try again.");
+                "Đặt hàng thất bại. Vui lòng thử lại.");
     }
 
     @SuppressWarnings("unchecked")
@@ -190,12 +205,6 @@ public class PlaceOrderServlet extends HttpServlet {
         if ("BANK_TRANSFER".equalsIgnoreCase(normalized)) {
             return "BANK_TRANSFER";
         }
-        if ("MOMO".equalsIgnoreCase(normalized)) {
-            return "MOMO";
-        }
-        if ("VNPAY".equalsIgnoreCase(normalized)) {
-            return "VNPAY";
-        }
         return "COD";
     }
 
@@ -223,6 +232,8 @@ public class PlaceOrderServlet extends HttpServlet {
                                           String voucherCode,
                                           String error) throws ServletException, IOException {
         request.setAttribute("error", error);
+        request.setAttribute("subtotal", grandTotal != null ? grandTotal : BigDecimal.ZERO);
+        request.setAttribute("discountAmount", BigDecimal.ZERO);
         request.setAttribute("grandTotal", grandTotal != null ? grandTotal : BigDecimal.ZERO);
         request.setAttribute("userId", userId);
         request.setAttribute("voucherCode", voucherCode);

@@ -42,6 +42,7 @@ public class AddToCartServlet extends HttpServlet {
         }
 
         Map<Integer, CartItem> cart = readCart(session);
+        int requestedQuantity = parseQuantity(request.getParameter("quantity"));
 
         if (cart == null) {
             cart = new HashMap<>();
@@ -49,7 +50,7 @@ public class AddToCartServlet extends HttpServlet {
 
         CartItem item = cart.get(id);
         int currentQuantity = item != null ? item.getQuantity() : 0;
-        int nextQuantity = currentQuantity + 1;
+        int nextQuantity = currentQuantity + requestedQuantity;
         if (availableStock != null && nextQuantity > availableStock) {
             response.sendRedirect(request.getContextPath() + "/product-detail?id=" + id
                     + "&status=stock-limit&max=" + availableStock);
@@ -60,12 +61,24 @@ public class AddToCartServlet extends HttpServlet {
             item.setProduct(product);
             item.setQuantity(nextQuantity);
         } else {
-            cart.put(id, new CartItem(product, 1));
+            cart.put(id, new CartItem(product, requestedQuantity));
         }
 
         session.setAttribute("cart", cart);
 
         response.sendRedirect(request.getContextPath() + "/product-detail?id=" + id + "&status=success");
+    }
+
+    private int parseQuantity(String rawQuantity) {
+        if (rawQuantity == null || rawQuantity.trim().isEmpty()) {
+            return 1;
+        }
+        try {
+            int quantity = Integer.parseInt(rawQuantity.trim());
+            return quantity > 0 ? quantity : 1;
+        } catch (NumberFormatException ex) {
+            return 1;
+        }
     }
 
     private Map<Integer, CartItem> readCart(HttpSession session) {

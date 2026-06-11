@@ -15,17 +15,17 @@ public class VoucherDAO {
             return validateVoucher(conn, voucherCode, subtotal);
         } catch (Exception e) {
             e.printStackTrace();
-            return VoucherValidationResult.invalid("Cannot validate voucher right now.");
+            return VoucherValidationResult.invalid("Chưa thể kiểm tra voucher lúc này.");
         }
     }
 
     public VoucherValidationResult validateVoucher(Connection conn, String voucherCode, BigDecimal subtotal) {
         if (voucherCode == null || voucherCode.trim().isEmpty()) {
-            return VoucherValidationResult.invalid("Voucher code is empty.");
+            return VoucherValidationResult.invalid("Vui lòng nhập mã voucher.");
         }
 
         if (subtotal == null || subtotal.compareTo(BigDecimal.ZERO) <= 0) {
-            return VoucherValidationResult.invalid("Invalid order subtotal.");
+            return VoucherValidationResult.invalid("Tạm tính đơn hàng chưa hợp lệ.");
         }
 
         String sql = "SELECT TOP 1 voucher_id, code, discount_type, discount_value, min_order_value, "
@@ -36,38 +36,38 @@ public class VoucherDAO {
             ps.setString(1, voucherCode.trim());
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
-                    return VoucherValidationResult.invalid("Voucher does not exist.");
+                    return VoucherValidationResult.invalid("Mã voucher không tồn tại.");
                 }
 
                 boolean status = rs.getBoolean("status");
                 if (!status) {
-                    return VoucherValidationResult.invalid("Voucher is inactive.");
+                    return VoucherValidationResult.invalid("Mã voucher chưa được kích hoạt.");
                 }
 
                 int quantity = rs.getInt("quantity");
                 if (quantity <= 0) {
-                    return VoucherValidationResult.invalid("Voucher is out of stock.");
+                    return VoucherValidationResult.invalid("Mã voucher đã hết lượt sử dụng.");
                 }
 
                 Timestamp now = new Timestamp(System.currentTimeMillis());
                 Timestamp startDate = rs.getTimestamp("start_date");
                 Timestamp endDate = rs.getTimestamp("end_date");
                 if (startDate != null && now.before(startDate)) {
-                    return VoucherValidationResult.invalid("Voucher is not active yet.");
+                    return VoucherValidationResult.invalid("Mã voucher chưa đến thời gian áp dụng.");
                 }
                 if (endDate != null && now.after(endDate)) {
-                    return VoucherValidationResult.invalid("Voucher has expired.");
+                    return VoucherValidationResult.invalid("Mã voucher đã hết hạn.");
                 }
 
                 BigDecimal minOrderValue = rs.getBigDecimal("min_order_value");
                 if (minOrderValue != null && subtotal.compareTo(minOrderValue) < 0) {
-                    return VoucherValidationResult.invalid("Order does not meet voucher minimum.");
+                    return VoucherValidationResult.invalid("Đơn hàng chưa đạt giá trị tối thiểu của voucher.");
                 }
 
                 String discountType = rs.getString("discount_type");
                 BigDecimal discountValue = rs.getBigDecimal("discount_value");
                 if (discountValue == null || discountValue.compareTo(BigDecimal.ZERO) <= 0) {
-                    return VoucherValidationResult.invalid("Voucher discount is invalid.");
+                    return VoucherValidationResult.invalid("Giá trị giảm giá của voucher chưa hợp lệ.");
                 }
 
                 BigDecimal discountAmount;
@@ -82,7 +82,7 @@ public class VoucherDAO {
                 } else if ("fixed".equalsIgnoreCase(discountType)) {
                     discountAmount = discountValue;
                 } else {
-                    return VoucherValidationResult.invalid("Voucher discount type is not supported.");
+                    return VoucherValidationResult.invalid("Loại giảm giá của voucher chưa được hỗ trợ.");
                 }
 
                 if (discountAmount.compareTo(subtotal) > 0) {
@@ -97,7 +97,7 @@ public class VoucherDAO {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return VoucherValidationResult.invalid("Cannot validate voucher right now.");
+            return VoucherValidationResult.invalid("Chưa thể kiểm tra voucher lúc này.");
         }
     }
 

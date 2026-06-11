@@ -6,10 +6,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Users - SweetPay Bakery</title>
+    <title>Quản lý khách hàng - SweetPay Bakery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<%=request.getContextPath()%>/assets/css/style.css?v=20260611-luxury1" rel="stylesheet">
 </head>
-<body class="bg-light">
+<body class="admin-page">
 <%
     List<User> users = (List<User>) request.getAttribute("users");
     String keyword = (String) request.getAttribute("keyword");
@@ -22,7 +23,7 @@
     }
 %>
 <div class="container-fluid py-4 px-3 px-md-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div class="admin-toolbar d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <h3 class="mb-0">Quản lý khách hàng</h3>
         <div class="d-flex gap-2">
             <a href="<%=request.getContextPath()%>/admin/dashboard" class="btn btn-outline-primary">Dashboard</a>

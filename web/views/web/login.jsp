@@ -9,35 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #fff6e9 0%, #ffe1d7 100%);
-            min-height: 100vh;
-        }
-
-        .login-card {
-            border: 0;
-            border-radius: 20px;
-            box-shadow: 0 18px 38px rgba(0, 0, 0, 0.12);
-        }
-
-        .btn-main {
-            background: #5c3317;
-            border: none;
-            border-radius: 28px;
-            color: #fff;
-            font-weight: 600;
-            padding: 10px 18px;
-        }
-
-        .btn-main:hover {
-            background: #7a4522;
-            color: #fff;
-        }
-    </style>
+    <link href="<%=request.getContextPath()%>/assets/css/style.css?v=20260611-luxury1" rel="stylesheet">
 </head>
-<body class="d-flex align-items-center py-5">
+<body class="sweet-auth-page">
 <%
     String error = request.getParameter("error");
     String redirect = (String) request.getAttribute("redirect");
@@ -52,13 +26,22 @@
         googleClientId = "";
     }
 %>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-lg-5 col-md-7">
-            <div class="card login-card">
-                <div class="card-body p-4 p-md-5">
-                    <h3 class="fw-bold mb-1">Đăng nhập</h3>
-                    <p class="text-muted mb-4">Đăng nhập để thanh toán và theo dõi đơn hàng.</p>
+<main class="container">
+    <div class="sweet-auth-card">
+        <div class="row g-0">
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="sweet-auth-panel">
+                    <div>
+                        <span class="sweet-eyebrow text-white">SweetPay Bakery</span>
+                        <h1>Đơn bánh riêng cho từng khoảnh khắc.</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="p-4 p-md-5">
+                    <a class="home-logo d-inline-block mb-4" href="<%=request.getContextPath()%>/home">SWEETPAY<span>BAKERY</span></a>
+                    <h2 class="fw-bold mb-2">Đăng nhập</h2>
+                    <p class="text-muted mb-4">Đăng nhập để thanh toán nhanh hơn và theo dõi trạng thái đơn hàng.</p>
 
                     <% if ("invalid".equals(error)) { %>
                     <div class="alert alert-danger">Email hoặc mật khẩu chưa đúng.</div>
@@ -73,18 +56,18 @@
                     <% } %>
 
                     <% if ("success".equals(request.getParameter("register"))) { %>
-                    <div class="alert alert-success">Đăng ký thành công! Vui lòng đăng nhập bằng tài khoản vừa tạo.</div>
+                    <div class="alert alert-success">Đăng ký thành công. Vui lòng đăng nhập bằng tài khoản vừa tạo.</div>
                     <% } %>
 
                     <form method="post" action="<%=request.getContextPath()%>/login" class="mb-4">
                         <input type="hidden" name="redirect" value="<%=redirect%>">
                         <div class="mb-3">
                             <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control" required>
+                            <input type="email" name="email" class="form-control" required autocomplete="email">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Mật khẩu</label>
-                            <input type="password" name="password" class="form-control" required>
+                            <input type="password" name="password" class="form-control" required autocomplete="current-password">
                         </div>
                         <button type="submit" class="btn btn-main w-100">Đăng nhập</button>
                     </form>
@@ -111,7 +94,7 @@
                     </div>
                     <% } else { %>
                     <div class="alert alert-info mb-0">
-                        Đăng nhập Google chưa bật. Cấu hình biến `SWEETPAY_GOOGLE_CLIENT_ID` để sử dụng.
+                        Đăng nhập Google chưa bật. Cấu hình biến <code>SWEETPAY_GOOGLE_CLIENT_ID</code> để sử dụng.
                     </div>
                     <% } %>
 
@@ -120,17 +103,15 @@
                         <input type="hidden" name="redirect" value="<%=redirect%>">
                     </form>
 
-                    <div class="text-center mt-4">
-                        <p class="mb-2">
-                            <a href="<%=request.getContextPath()%>/register" class="small text-decoration-none fw-semibold">Chưa có tài khoản? Đăng ký ngay</a>
-                        </p>
-                        <a href="<%=request.getContextPath()%>/home" class="small text-decoration-none">Quay về trang chủ</a>
+                    <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mt-4">
+                        <a href="<%=request.getContextPath()%>/register" class="text-decoration-none fw-semibold">Chưa có tài khoản? Đăng ký</a>
+                        <a href="<%=request.getContextPath()%>/home" class="text-decoration-none">Quay về trang chủ</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</main>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
@@ -144,4 +125,3 @@
 </script>
 </body>
 </html>
-

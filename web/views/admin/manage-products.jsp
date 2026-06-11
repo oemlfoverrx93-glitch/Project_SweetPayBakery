@@ -7,24 +7,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Products - SweetPay Bakery</title>
+    <title>Quản lý sản phẩm - SweetPay Bakery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: #f7f8fc;
-        }
-
-        .thumb {
-            width: 72px;
-            height: 72px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 1px solid #e9ecef;
-            background: #fff;
-        }
-    </style>
+    <link href="<%=request.getContextPath()%>/assets/css/style.css?v=20260611-luxury1" rel="stylesheet">
 </head>
-<body>
+<body class="admin-page">
 <%
     List<Product> products = (List<Product>) request.getAttribute("products");
     List<Category> categories = (List<Category>) request.getAttribute("categories");
@@ -38,7 +25,7 @@
     }
 %>
 <div class="container-fluid py-4 px-3 px-md-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div class="admin-toolbar d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <h3 class="mb-0">Quản lý sản phẩm</h3>
         <div class="d-flex gap-2">
             <a href="<%=request.getContextPath()%>/admin/dashboard" class="btn btn-outline-primary">Dashboard</a>
@@ -290,4 +277,3 @@
 </div>
 </body>
 </html>
-

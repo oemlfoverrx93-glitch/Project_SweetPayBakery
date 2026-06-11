@@ -4,6 +4,9 @@ import com.sweetpay.dao.ProductDAO;
 import com.sweetpay.model.Category;
 import com.sweetpay.model.Product;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -47,6 +50,7 @@ public class ProductServlet extends HttpServlet {
 
         String categoryRaw = request.getParameter("categoryId");
         String keyword = trimToNull(request.getParameter("q"));
+        String sort = trimToNull(request.getParameter("sort"));
 
         List<Product> products;
         Integer selectedCategory = null;
@@ -64,9 +68,12 @@ public class ProductServlet extends HttpServlet {
             products = productDAO.getAllProducts();
         }
 
+        products = sortProducts(products, sort);
+
         request.setAttribute("products", products);
         request.setAttribute("keyword", keyword);
         request.setAttribute("selectedCategory", selectedCategory);
+        request.setAttribute("selectedSort", sort != null ? sort : "default");
         request.getRequestDispatcher("/views/web/product-list.jsp").forward(request, response);
     }
 
@@ -76,5 +83,37 @@ public class ProductServlet extends HttpServlet {
         }
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private List<Product> sortProducts(List<Product> products, String sort) {
+        List<Product> sortedProducts = new ArrayList<>(products);
+        if ("price-asc".equals(sort)) {
+            sortedProducts.sort(Comparator.comparing(this::displayPrice));
+        } else if ("price-desc".equals(sort)) {
+            sortedProducts.sort(Comparator.comparing(this::displayPrice).reversed());
+        } else if ("name-asc".equals(sort)) {
+            sortedProducts.sort(Comparator.comparing(
+                    p -> p.getProductName() != null ? p.getProductName().toLowerCase() : ""));
+        } else if ("sale".equals(sort)) {
+            sortedProducts.sort(Comparator.comparing((Product p) -> hasSale(p) ? 0 : 1)
+                    .thenComparing(this::displayPrice));
+        }
+        return sortedProducts;
+    }
+
+    private BigDecimal displayPrice(Product product) {
+        if (product == null) {
+            return BigDecimal.ZERO;
+        }
+        if (product.getSalePrice() != null && product.getSalePrice().compareTo(BigDecimal.ZERO) > 0) {
+            return product.getSalePrice();
+        }
+        return product.getPrice() != null ? product.getPrice() : BigDecimal.ZERO;
+    }
+
+    private boolean hasSale(Product product) {
+        return product != null
+                && product.getSalePrice() != null
+                && product.getSalePrice().compareTo(BigDecimal.ZERO) > 0;
     }
 }

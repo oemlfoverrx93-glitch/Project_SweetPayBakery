@@ -8,16 +8,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Order Detail - SweetPay Bakery</title>
+    <title>Chi tiết đơn hàng Admin - SweetPay Bakery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<%=request.getContextPath()%>/assets/css/style.css?v=20260611-luxury1" rel="stylesheet">
 </head>
-<body class="bg-light">
+<body class="admin-page">
 <%
     Order order = (Order) request.getAttribute("order");
     Payment payment = (Payment) request.getAttribute("payment");
 %>
 <div class="container py-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div class="admin-toolbar d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <h3 class="mb-0">Chi tiết đơn hàng (admin)</h3>
         <div class="d-flex gap-2">
             <a href="<%=request.getContextPath()%>/admin/orders" class="btn btn-outline-secondary">Danh sách đơn</a>

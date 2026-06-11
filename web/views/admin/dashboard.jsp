@@ -5,41 +5,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Dashboard - SweetPay Bakery</title>
+    <title>Bảng điều khiển Admin - SweetPay Bakery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: #f6f7fb;
-        }
-
-        .sidebar {
-            min-height: 100vh;
-            background: #2f2f46;
-            color: #fff;
-        }
-
-        .sidebar a {
-            color: #d8daf5;
-            text-decoration: none;
-            display: block;
-            padding: 10px 12px;
-            border-radius: 10px;
-        }
-
-        .sidebar a:hover,
-        .sidebar a.active {
-            background: #45456a;
-            color: #fff;
-        }
-
-        .stat-card {
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
-        }
-    </style>
+    <link href="<%=request.getContextPath()%>/assets/css/style.css?v=20260611-luxury1" rel="stylesheet">
 </head>
-<body>
+<body class="admin-page">
 <%
     int totalProducts = request.getAttribute("totalProducts") instanceof Integer ? (Integer) request.getAttribute("totalProducts") : 0;
     int totalOrders = request.getAttribute("totalOrders") instanceof Integer ? (Integer) request.getAttribute("totalOrders") : 0;

@@ -18,11 +18,9 @@ public class PaymentDAO {
             + "CREATE TABLE payments ("
             + "payment_id INT IDENTITY(1,1) PRIMARY KEY, "
             + "order_id INT NOT NULL UNIQUE, "
-            + "payment_method NVARCHAR(30) NOT NULL "
-            + "CHECK (payment_method IN ('COD', 'BANK_TRANSFER', 'MOMO', 'VNPAY')), "
+            + "payment_method NVARCHAR(30) NOT NULL DEFAULT 'COD', "
             + "amount DECIMAL(18,2) NOT NULL DEFAULT 0, "
-            + "payment_status NVARCHAR(30) NOT NULL DEFAULT 'pending' "
-            + "CHECK (payment_status IN ('pending', 'unpaid', 'paid', 'failed', 'refunded')), "
+            + "payment_status NVARCHAR(30) NOT NULL DEFAULT 'pending', "
             + "transaction_code NVARCHAR(100) NULL, "
             + "paid_at DATETIME NULL, "
             + "created_at DATETIME NOT NULL DEFAULT GETDATE(), "
@@ -187,7 +185,7 @@ public class PaymentDAO {
         }
 
         String value = paymentMethod.trim().toUpperCase();
-        if ("COD".equals(value) || "BANK_TRANSFER".equals(value) || "MOMO".equals(value) || "VNPAY".equals(value)) {
+        if ("COD".equals(value) || "BANK_TRANSFER".equals(value)) {
             return value;
         }
         return "COD";

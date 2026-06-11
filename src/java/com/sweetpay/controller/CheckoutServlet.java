@@ -1,6 +1,8 @@
 package com.sweetpay.controller;
 
 import com.sweetpay.model.CartItem;
+import com.sweetpay.dao.VoucherDAO;
+import com.sweetpay.dao.VoucherDAO.VoucherValidationResult;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Map;
@@ -32,8 +34,31 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
+        BigDecimal subtotal = calculateGrandTotal(cart);
+        BigDecimal discountAmount = BigDecimal.ZERO;
+        BigDecimal totalAfterDiscount = subtotal;
+
+        String voucherCode = trimToNull(request.getParameter("voucherCode"));
+        if (voucherCode != null) {
+            VoucherValidationResult voucherValidation = new VoucherDAO().validateVoucher(voucherCode, subtotal);
+            if (voucherValidation.isValid()) {
+                voucherCode = voucherValidation.getVoucherCode();
+                discountAmount = voucherValidation.getDiscountAmount();
+                totalAfterDiscount = subtotal.subtract(discountAmount);
+                if (totalAfterDiscount.compareTo(BigDecimal.ZERO) < 0) {
+                    totalAfterDiscount = BigDecimal.ZERO;
+                }
+                request.setAttribute("voucherSuccess", "Đã áp dụng mã " + voucherCode + ".");
+            } else {
+                request.setAttribute("voucherError", voucherValidation.getMessage());
+            }
+        }
+
         request.setAttribute("userId", userId);
-        request.setAttribute("grandTotal", calculateGrandTotal(cart));
+        request.setAttribute("subtotal", subtotal);
+        request.setAttribute("discountAmount", discountAmount);
+        request.setAttribute("grandTotal", totalAfterDiscount);
+        request.setAttribute("voucherCode", voucherCode);
         request.getRequestDispatcher("/views/web/checkout.jsp").forward(request, response);
     }
 
@@ -65,5 +90,13 @@ public class CheckoutServlet extends HttpServlet {
             return (Integer) userObj;
         }
         return null;
+    }
+
+    private String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }
