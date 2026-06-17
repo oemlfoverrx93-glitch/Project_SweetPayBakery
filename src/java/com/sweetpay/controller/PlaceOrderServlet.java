@@ -8,6 +8,7 @@ import com.sweetpay.model.CartItem;
 import com.sweetpay.model.Order;
 import com.sweetpay.model.OrderDetail;
 import com.sweetpay.model.Payment;
+import com.sweetpay.util.CsrfUtil;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -31,6 +32,10 @@ public class PlaceOrderServlet extends HttpServlet {
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
+        if (!CsrfUtil.isValid(request)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
 
         HttpSession session = request.getSession();
         Map<Integer, CartItem> cart = getCart(session);

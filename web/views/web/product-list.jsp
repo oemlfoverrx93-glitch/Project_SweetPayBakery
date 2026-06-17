@@ -3,6 +3,8 @@
 <%@page import="java.util.Collections"%>
 <%@page import="com.sweetpay.model.Product"%>
 <%@page import="com.sweetpay.model.Category"%>
+<%@page import="com.sweetpay.util.CsrfUtil"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="vi">
@@ -19,6 +21,7 @@
 <body class="home-page">
 <%
     String contextPath = request.getContextPath();
+    String csrfToken = CsrfUtil.getToken(session);
     Integer navUserId = session.getAttribute("userId") instanceof Integer ? (Integer) session.getAttribute("userId") : null;
     String navUserName = session.getAttribute("userFullName") != null ? String.valueOf(session.getAttribute("userFullName")) : "";
     boolean navIsAdmin = false;
@@ -78,7 +81,7 @@
                 <span class="home-cart-count"><%=cartCount%></span>
             </a>
             <% if (navUserId != null) { %>
-            <span class="home-auth-chip"><%=navUserName == null || navUserName.trim().isEmpty() ? "Tài khoản" : navUserName%></span>
+            <span class="home-auth-chip"><%=HtmlUtil.escapeOr(navUserName, "Tài khoản")%></span>
             <a class="home-auth-link" href="<%=contextPath%>/logout">Đăng xuất</a>
             <% } else { %>
             <a class="home-auth-link primary" href="<%=contextPath%>/login">Đăng nhập</a>
@@ -102,7 +105,7 @@
             <div class="col-lg-4">
                 <label class="form-label">Tìm kiếm</label>
                 <input type="text" class="form-control" name="q" placeholder="Tên bánh, hương vị, mô tả..."
-                       value="<%=keyword%>">
+                       value="<%=HtmlUtil.escape(keyword)%>">
             </div>
             <div class="col-lg-3">
                 <label class="form-label">Danh mục</label>
@@ -111,7 +114,7 @@
                     <% for (Category c : navCategories) {
                            boolean selected = selectedCategory != null && selectedCategory.intValue() == c.getCategoryId();
                     %>
-                    <option value="<%=c.getCategoryId()%>" <%=selected ? "selected" : ""%>><%=c.getCategoryName()%></option>
+                    <option value="<%=c.getCategoryId()%>" <%=selected ? "selected" : ""%>><%=HtmlUtil.escape(c.getCategoryName())%></option>
                     <% } %>
                 </select>
             </div>
@@ -154,12 +157,12 @@
         <article class="home-product-card">
             <a class="home-product-image-link position-relative" href="<%=contextPath%>/product-detail?id=<%=p.getProductId()%>">
                 <% if (hasSale) { %><span class="home-sale-badge">Sale</span><% } %>
-                <img src="<%=contextPath%>/<%=image%>" alt="<%=p.getProductName()%>" loading="lazy"
+                <img src="<%=contextPath%>/<%=HtmlUtil.escape(image)%>" alt="<%=HtmlUtil.escape(p.getProductName())%>" loading="lazy"
                      onerror="this.onerror=null;this.src='<%=contextPath%>/assets/images/products/bo.jpg';">
             </a>
             <div class="home-product-body">
-                <h3><a href="<%=contextPath%>/product-detail?id=<%=p.getProductId()%>"><%=p.getProductName()%></a></h3>
-                <p class="home-product-desc"><%=description%></p>
+                <h3><a href="<%=contextPath%>/product-detail?id=<%=p.getProductId()%>"><%=HtmlUtil.escape(p.getProductName())%></a></h3>
+                <p class="home-product-desc"><%=HtmlUtil.escape(description)%></p>
                 <div class="home-product-price">
                     <% if (hasSale) { %>
                     <span class="home-price-sale"><%=String.format("%,.0f", p.getSalePrice())%>đ</span>
@@ -176,7 +179,11 @@
                     <% if (outOfStock) { %>
                     <button type="button" class="btn btn-buy-disabled btn-sm" disabled>Hết hàng</button>
                     <% } else { %>
-                    <a href="<%=contextPath%>/add-to-cart?id=<%=p.getProductId()%>" class="btn btn-buy btn-sm">Thêm giỏ</a>
+                    <form action="<%=contextPath%>/add-to-cart" method="post" class="d-inline">
+                        <input type="hidden" name="csrfToken" value="<%=csrfToken%>">
+                        <input type="hidden" name="id" value="<%=p.getProductId()%>">
+                        <button type="submit" class="btn btn-buy btn-sm">Thêm giỏ</button>
+                    </form>
                     <% } %>
                 </div>
             </div>

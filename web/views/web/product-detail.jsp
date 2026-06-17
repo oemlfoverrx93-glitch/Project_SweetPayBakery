@@ -1,6 +1,8 @@
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@page import="java.util.Map"%>
 <%@page import="com.sweetpay.model.Product"%>
+<%@page import="com.sweetpay.util.CsrfUtil"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -16,6 +18,7 @@
 <body class="home-page">
 <%
     String contextPath = request.getContextPath();
+    String csrfToken = CsrfUtil.getToken(session);
     Integer navUserId = session.getAttribute("userId") instanceof Integer ? (Integer) session.getAttribute("userId") : null;
     String navUserName = session.getAttribute("userFullName") != null ? String.valueOf(session.getAttribute("userFullName")) : "";
     boolean navIsAdmin = false;
@@ -48,7 +51,7 @@
                 <span class="home-cart-count"><%=cartCount%></span>
             </a>
             <% if (navUserId != null) { %>
-            <span class="home-auth-chip"><%=navUserName == null || navUserName.trim().isEmpty() ? "Tài khoản" : navUserName%></span>
+            <span class="home-auth-chip"><%=HtmlUtil.escapeOr(navUserName, "Tài khoản")%></span>
             <a class="home-auth-link" href="<%=contextPath%>/logout">Đăng xuất</a>
             <% } else { %>
             <a class="home-auth-link primary" href="<%=contextPath%>/login">Đăng nhập</a>
@@ -71,20 +74,20 @@
     <div class="mb-4">
         <a href="<%=contextPath%>/products" class="text-decoration-none text-muted">Thực đơn</a>
         <span class="text-muted mx-2">/</span>
-        <span><%=p.getProductName()%></span>
+        <span><%=HtmlUtil.escape(p.getProductName())%></span>
     </div>
 
     <div class="row g-5 align-items-start">
         <div class="col-lg-6">
             <div class="product-detail-image">
-                <img src="<%=contextPath%>/<%=image%>" alt="<%=p.getProductName()%>" class="w-100 product-detail-main-image" loading="lazy"
+                <img src="<%=contextPath%>/<%=HtmlUtil.escape(image)%>" alt="<%=HtmlUtil.escape(p.getProductName())%>" class="w-100 product-detail-main-image" loading="lazy"
                      onerror="this.onerror=null;this.src='<%=contextPath%>/assets/images/products/bo.jpg';">
             </div>
         </div>
 
         <div class="col-lg-6">
             <span class="sweet-eyebrow">Chi tiết sản phẩm</span>
-            <h1 class="sweet-page-title mb-3"><%=p.getProductName()%></h1>
+            <h1 class="sweet-page-title mb-3"><%=HtmlUtil.escape(p.getProductName())%></h1>
 
             <div class="home-product-price mb-3">
                 <% if (hasSale) { %>
@@ -100,17 +103,17 @@
             </span>
 
             <p class="product-detail-description mt-4 mb-0 text-muted">
-                <%=p.getDescription() != null ? p.getDescription() : "Món bánh được chuẩn bị thủ công mỗi ngày với độ ngọt cân bằng và phần trang trí chỉn chu."%>
+                <%=HtmlUtil.escapeOr(p.getDescription(), "Món bánh được chuẩn bị thủ công mỗi ngày với độ ngọt cân bằng và phần trang trí chỉn chu.")%>
             </p>
 
             <div class="detail-amenities">
                 <div class="detail-amenity">
                     <strong>Hương vị</strong>
-                    <%=p.getFlavor() != null ? p.getFlavor() : "Theo mẻ bánh trong ngày"%>
+                    <%=HtmlUtil.escapeOr(p.getFlavor(), "Theo mẻ bánh trong ngày")%>
                 </div>
                 <div class="detail-amenity">
                     <strong>Kích thước</strong>
-                    <%=p.getSize() != null ? p.getSize() : "Tiêu chuẩn"%>
+                    <%=HtmlUtil.escapeOr(p.getSize(), "Tiêu chuẩn")%>
                 </div>
                 <div class="detail-amenity">
                     <strong>Lưu ý dị ứng</strong>
@@ -119,7 +122,7 @@
             </div>
 
             <div class="text-secondary mb-4">
-                <div><strong>SKU:</strong> <%=p.getSku() != null ? p.getSku() : "-"%></div>
+                <div><strong>SKU:</strong> <%=HtmlUtil.escapeOr(p.getSku(), "-")%></div>
                 <div><strong>Bảo quản:</strong> Ưu tiên dùng trong ngày, giữ lạnh nếu chưa thưởng thức ngay.</div>
             </div>
 
@@ -128,7 +131,8 @@
                 <% if (outOfStock) { %>
                 <button type="button" class="btn btn-buy-disabled" disabled>Hết hàng</button>
                 <% } else { %>
-                <form action="<%=contextPath%>/add-to-cart" method="get" class="d-flex flex-wrap gap-2">
+                <form action="<%=contextPath%>/add-to-cart" method="post" class="d-flex flex-wrap gap-2">
+                    <input type="hidden" name="csrfToken" value="<%=csrfToken%>">
                     <input type="hidden" name="id" value="<%=p.getProductId()%>">
                     <input type="number" name="quantity" value="1" min="1"
                            <% if (stockObj != null && stockQuantity > 0) { %>max="<%=stockQuantity%>"<% } %>

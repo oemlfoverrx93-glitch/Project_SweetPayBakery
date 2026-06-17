@@ -1,6 +1,7 @@
 package com.sweetpay.controller;
 
 import com.sweetpay.model.CartItem;
+import com.sweetpay.util.CsrfUtil;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,18 @@ public class RemoveFromCartServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+        response.sendRedirect(request.getContextPath() + "/cart");
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        if (!CsrfUtil.isValid(request)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
         try {
             // 1. Parse product id from query string
             int id = Integer.parseInt(request.getParameter("id"));
@@ -38,7 +50,7 @@ public class RemoveFromCartServlet extends HttpServlet {
         }
         
         // 4. Redirect back to cart page
-        response.sendRedirect("cart");
+        response.sendRedirect(request.getContextPath() + "/cart");
     }
 
     private Map<Integer, CartItem> readCart(HttpSession session) {

@@ -2,7 +2,41 @@
 <%@page import="com.sweetpay.model.OrderDetail"%>
 <%@page import="com.sweetpay.model.Order"%>
 <%@page import="com.sweetpay.model.Payment"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%!
+    private String orderStatusLabel(String status) {
+        if ("pending".equals(status)) return "Ch&#7901; x&aacute;c nh&#7853;n";
+        if ("confirmed".equals(status)) return "&#272;&atilde; x&aacute;c nh&#7853;n";
+        if ("preparing".equals(status)) return "&#272;ang chu&#7849;n b&#7883;";
+        if ("shipping".equals(status)) return "&#272;ang giao";
+        if ("ready_for_pickup".equals(status)) return "Ch&#7901; nh&#7853;n t&#7841;i ti&#7879;m";
+        if ("completed".equals(status)) return "Ho&agrave;n t&#7845;t";
+        if ("cancelled".equals(status)) return "&#272;&atilde; h&#7911;y";
+        return status == null ? "-" : status;
+    }
+
+    private String paymentStatusLabel(String status) {
+        if ("pending".equals(status)) return "Ch&#7901; thanh to&aacute;n";
+        if ("unpaid".equals(status)) return "Ch&#432;a thanh to&aacute;n";
+        if ("paid".equals(status)) return "&#272;&atilde; thanh to&aacute;n";
+        if ("failed".equals(status)) return "Th&#7845;t b&#7841;i";
+        if ("refunded".equals(status)) return "&#272;&atilde; ho&agrave;n ti&#7873;n";
+        return status == null ? "-" : status;
+    }
+
+    private String receiveMethodLabel(String method) {
+        if ("pickup".equals(method)) return "Nh&#7853;n t&#7841;i c&#7917;a h&agrave;ng";
+        if ("delivery".equals(method)) return "Giao t&#7853;n n&#417;i";
+        return method == null ? "-" : method;
+    }
+
+    private String paymentMethodLabel(String method) {
+        if ("BANK_TRANSFER".equals(method)) return "Chuy&#7875;n kho&#7843;n";
+        if ("COD".equals(method)) return "COD";
+        return method == null ? "-" : method;
+    }
+%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -43,14 +77,14 @@
                 <div class="card-body">
                     <h5 class="card-title">Thông tin đơn hàng</h5>
                     <p><strong>ID:</strong> <%=order.getOrderId()%></p>
-                    <p><strong>Mã đơn:</strong> <%=order.getOrderCode()%></p>
+                    <p><strong>Mã đơn:</strong> <%=HtmlUtil.escape(order.getOrderCode())%></p>
                     <p><strong>User ID:</strong> <%=order.getUserId()%></p>
-                    <p><strong>Người nhận:</strong> <%=order.getRecipientName()%></p>
-                    <p><strong>SĐT:</strong> <%=order.getRecipientPhone()%></p>
-                    <p><strong>Địa chỉ:</strong> <%=order.getShippingAddress()%></p>
-                    <p><strong>Hình thức nhận:</strong> <%=order.getReceiveMethod()%></p>
+                    <p><strong>Người nhận:</strong> <%=HtmlUtil.escape(order.getRecipientName())%></p>
+                    <p><strong>SĐT:</strong> <%=HtmlUtil.escape(order.getRecipientPhone())%></p>
+                    <p><strong>Địa chỉ:</strong> <%=HtmlUtil.escape(order.getShippingAddress())%></p>
+                    <p><strong>Hình thức nhận:</strong> <%=receiveMethodLabel(order.getReceiveMethod())%></p>
                     <p><strong>Ngày đặt:</strong> <%=order.getOrderDate()%></p>
-                    <p><strong>Ghi chú:</strong> <%=order.getNote() != null ? order.getNote() : "-"%></p>
+                    <p><strong>Ghi chú:</strong> <%=HtmlUtil.escapeOr(order.getNote(), "-")%></p>
                 </div>
             </div>
         </div>
@@ -66,24 +100,24 @@
                         <div class="col-12">
                             <label class="form-label">Trạng thái đơn hàng</label>
                             <select class="form-select" name="orderStatus">
-                                <option value="pending" <%= "pending".equals(order.getOrderStatus()) ? "selected" : "" %>>pending</option>
-                                <option value="confirmed" <%= "confirmed".equals(order.getOrderStatus()) ? "selected" : "" %>>confirmed</option>
-                                <option value="preparing" <%= "preparing".equals(order.getOrderStatus()) ? "selected" : "" %>>preparing</option>
-                                <option value="shipping" <%= "shipping".equals(order.getOrderStatus()) ? "selected" : "" %>>shipping</option>
-                                <option value="ready_for_pickup" <%= "ready_for_pickup".equals(order.getOrderStatus()) ? "selected" : "" %>>ready_for_pickup</option>
-                                <option value="completed" <%= "completed".equals(order.getOrderStatus()) ? "selected" : "" %>>completed</option>
-                                <option value="cancelled" <%= "cancelled".equals(order.getOrderStatus()) ? "selected" : "" %>>cancelled</option>
+                                <option value="pending" <%= "pending".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("pending")%></option>
+                                <option value="confirmed" <%= "confirmed".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("confirmed")%></option>
+                                <option value="preparing" <%= "preparing".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("preparing")%></option>
+                                <option value="shipping" <%= "shipping".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("shipping")%></option>
+                                <option value="ready_for_pickup" <%= "ready_for_pickup".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("ready_for_pickup")%></option>
+                                <option value="completed" <%= "completed".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("completed")%></option>
+                                <option value="cancelled" <%= "cancelled".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("cancelled")%></option>
                             </select>
                         </div>
 
                         <div class="col-12">
                             <label class="form-label">Trạng thái thanh toán</label>
                             <select class="form-select" name="paymentStatus">
-                                <option value="pending" <%= "pending".equals(order.getPaymentStatus()) ? "selected" : "" %>>pending</option>
-                                <option value="unpaid" <%= "unpaid".equals(order.getPaymentStatus()) ? "selected" : "" %>>unpaid</option>
-                                <option value="paid" <%= "paid".equals(order.getPaymentStatus()) ? "selected" : "" %>>paid</option>
-                                <option value="failed" <%= "failed".equals(order.getPaymentStatus()) ? "selected" : "" %>>failed</option>
-                                <option value="refunded" <%= "refunded".equals(order.getPaymentStatus()) ? "selected" : "" %>>refunded</option>
+                                <option value="pending" <%= "pending".equals(order.getPaymentStatus()) ? "selected" : "" %>><%=paymentStatusLabel("pending")%></option>
+                                <option value="unpaid" <%= "unpaid".equals(order.getPaymentStatus()) ? "selected" : "" %>><%=paymentStatusLabel("unpaid")%></option>
+                                <option value="paid" <%= "paid".equals(order.getPaymentStatus()) ? "selected" : "" %>><%=paymentStatusLabel("paid")%></option>
+                                <option value="failed" <%= "failed".equals(order.getPaymentStatus()) ? "selected" : "" %>><%=paymentStatusLabel("failed")%></option>
+                                <option value="refunded" <%= "refunded".equals(order.getPaymentStatus()) ? "selected" : "" %>><%=paymentStatusLabel("refunded")%></option>
                             </select>
                         </div>
 
@@ -93,15 +127,15 @@
                     </form>
 
                     <hr>
-                    <h6>Thông tin payment record</h6>
+                    <h6>Thông tin thanh toán</h6>
                     <% if (payment != null) { %>
-                    <p><strong>Method:</strong> <%=payment.getPaymentMethod()%></p>
-                    <p><strong>Status:</strong> <%=payment.getPaymentStatus()%></p>
-                    <p><strong>Amount:</strong> <%=String.format("%,.0f", payment.getAmount())%> VNĐ</p>
-                    <p><strong>Transaction:</strong> <%=payment.getTransactionCode() != null ? payment.getTransactionCode() : "-"%></p>
-                    <p><strong>Paid At:</strong> <%=payment.getPaidAt() != null ? payment.getPaidAt() : "-"%></p>
+                    <p><strong>Phương thức:</strong> <%=paymentMethodLabel(payment.getPaymentMethod())%></p>
+                    <p><strong>Trạng thái:</strong> <%=paymentStatusLabel(payment.getPaymentStatus())%></p>
+                    <p><strong>Số tiền:</strong> <%=String.format("%,.0f", payment.getAmount())%> VNĐ</p>
+                    <p><strong>Mã giao dịch:</strong> <%=HtmlUtil.escapeOr(payment.getTransactionCode(), "-")%></p>
+                    <p><strong>Thời gian thanh toán:</strong> <%=payment.getPaidAt() != null ? payment.getPaidAt() : "-"%></p>
                     <% } else { %>
-                    <p class="text-muted mb-0">Chưa có payment record.</p>
+                    <p class="text-muted mb-0">Chưa có bản ghi thanh toán.</p>
                     <% } %>
                 </div>
             </div>
@@ -144,10 +178,10 @@
             </div>
 
             <div class="mt-3 text-end">
-                <div><strong>Subtotal:</strong> <%=String.format("%,.0f", order.getSubtotal())%> VNĐ</div>
-                <div><strong>Discount:</strong> <%=String.format("%,.0f", order.getDiscountAmount())%> VNĐ</div>
-                <div><strong>Shipping:</strong> <%=String.format("%,.0f", order.getShippingFee())%> VNĐ</div>
-                <div class="fs-5"><strong>Total:</strong> <%=String.format("%,.0f", order.getTotalAmount())%> VNĐ</div>
+                <div><strong>Tam tinh:</strong> <%=String.format("%,.0f", order.getSubtotal())%> VNĐ</div>
+                <div><strong>Giam gia:</strong> <%=String.format("%,.0f", order.getDiscountAmount())%> VNĐ</div>
+                <div><strong>Phi giao hang:</strong> <%=String.format("%,.0f", order.getShippingFee())%> VNĐ</div>
+                <div class="fs-5"><strong>Tong cong:</strong> <%=String.format("%,.0f", order.getTotalAmount())%> VNĐ</div>
             </div>
         </div>
     </div>

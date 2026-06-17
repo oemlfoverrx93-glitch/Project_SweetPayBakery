@@ -3,7 +3,6 @@ package com.sweetpay.controller;
 import com.sweetpay.dao.UserDAO;
 import com.sweetpay.model.User;
 import com.sweetpay.util.AuthSessionUtil;
-import com.sweetpay.util.GoogleAuthService;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpSession;
 public class LoginServlet extends HttpServlet {
 
     private final UserDAO userDAO = new UserDAO();
-    private final GoogleAuthService googleAuthService = new GoogleAuthService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -29,7 +27,6 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        request.setAttribute("googleClientId", googleAuthService.getGoogleClientId());
         request.setAttribute("redirect", sanitizeRedirect(request.getParameter("redirect")));
         request.getRequestDispatcher("/views/web/login.jsp").forward(request, response);
     }
@@ -54,7 +51,6 @@ public class LoginServlet extends HttpServlet {
 
         HttpSession session = request.getSession(true);
         AuthSessionUtil.setAuthenticatedUser(session, user);
-        userDAO.updateLastLogin(user.getUserId());
 
         response.sendRedirect(request.getContextPath() + resolvePostLoginPath(session, redirect));
     }

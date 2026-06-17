@@ -1,5 +1,6 @@
 <%@page import="java.util.List"%>
 <%@page import="com.sweetpay.model.User"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="vi">
@@ -44,7 +45,7 @@
             <form method="get" action="<%=request.getContextPath()%>/admin/users" class="row g-2">
                 <div class="col-md-4">
                     <label class="form-label">Tìm kiếm</label>
-                    <input type="text" name="q" class="form-control" value="<%=keyword%>"
+                    <input type="text" name="q" class="form-control" value="<%=HtmlUtil.escape(keyword)%>"
                            placeholder="Email / SĐT / tên khách">
                 </div>
                 <div class="col-md-3">
@@ -84,22 +85,22 @@
                 <% for (User user : users) { %>
                 <tr>
                     <td><%=user.getUserId()%></td>
-                    <td><%=user.getFullName()%></td>
-                    <td><%=user.getEmail()%></td>
-                    <td><%=user.getPhone() != null ? user.getPhone() : "-"%></td>
+                    <td><%=HtmlUtil.escape(user.getFullName())%></td>
+                    <td><%=HtmlUtil.escape(user.getEmail())%></td>
+                    <td><%=HtmlUtil.escapeOr(user.getPhone(), "-")%></td>
                     <td><%=user.getOrderCount()%></td>
                     <td>
                         <% if (user.isStatus()) { %>
-                        <span class="badge bg-success">active</span>
+                        <span class="badge bg-success">Đang hoạt động</span>
                         <% } else { %>
-                        <span class="badge bg-secondary">inactive</span>
+                        <span class="badge bg-secondary">Đã khóa</span>
                         <% } %>
                     </td>
                     <td>
                         <form method="post" action="<%=request.getContextPath()%>/admin/users" class="d-flex gap-2">
                             <input type="hidden" name="userId" value="<%=user.getUserId()%>">
-                            <input type="hidden" name="q" value="<%=keyword%>">
-                            <input type="hidden" name="statusFilter" value="<%=selectedStatus%>">
+                            <input type="hidden" name="q" value="<%=HtmlUtil.escape(keyword)%>">
+                            <input type="hidden" name="statusFilter" value="<%=HtmlUtil.escape(selectedStatus)%>">
                             <% if (user.isStatus()) { %>
                             <input type="hidden" name="newStatus" value="inactive">
                             <button type="submit" class="btn btn-sm btn-outline-danger">Khóa</button>

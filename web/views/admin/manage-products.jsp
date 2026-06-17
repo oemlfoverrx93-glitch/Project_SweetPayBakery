@@ -1,6 +1,7 @@
 <%@page import="java.util.List"%>
 <%@page import="com.sweetpay.model.Product"%>
 <%@page import="com.sweetpay.model.Category"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="vi">
@@ -83,13 +84,13 @@
                         <input type="hidden" name="action" value="<%= editProduct != null ? "update" : "create" %>">
                         <% if (editProduct != null) { %>
                         <input type="hidden" name="productId" value="<%=editProduct.getProductId()%>">
-                        <input type="hidden" name="oldImage" value="<%=editProduct.getMainImage() != null ? editProduct.getMainImage() : ""%>">
+                        <input type="hidden" name="oldImage" value="<%=HtmlUtil.escape(editProduct.getMainImage())%>">
                         <% } %>
 
                         <div class="col-12">
                             <label class="form-label">Tên bánh</label>
                             <input type="text" name="productName" class="form-control" required maxlength="150" 
-                                   value="<%= editProduct != null ? (editProduct.getProductName() != null ? editProduct.getProductName() : "") : "" %>">
+                                   value="<%= editProduct != null ? HtmlUtil.escape(editProduct.getProductName()) : "" %>">
                         </div>
 
                         <div class="col-12">
@@ -100,7 +101,7 @@
                                        for (Category category : categories) { 
                                            boolean isSelected = editProduct != null && editProduct.getCategoryId() == category.getCategoryId();
                                    %>
-                                <option value="<%=category.getCategoryId()%>" <%= isSelected ? "selected" : "" %>><%=category.getCategoryName()%></option>
+                                <option value="<%=category.getCategoryId()%>" <%= isSelected ? "selected" : "" %>><%=HtmlUtil.escape(category.getCategoryName())%></option>
                                 <%     }
                                    } %>
                             </select>
@@ -109,17 +110,17 @@
                         <div class="col-md-6">
                             <label class="form-label">SKU</label>
                             <input type="text" name="sku" class="form-control" maxlength="50" placeholder="VD: SP999"
-                                   value="<%= editProduct != null ? (editProduct.getSku() != null ? editProduct.getSku() : "") : "" %>">
+                                   value="<%= editProduct != null ? HtmlUtil.escape(editProduct.getSku()) : "" %>">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Slug</label>
                             <input type="text" name="slug" class="form-control" maxlength="150" placeholder="tu-dong-neu-de-trong"
-                                   value="<%= editProduct != null ? (editProduct.getSlug() != null ? editProduct.getSlug() : "") : "" %>">
+                                   value="<%= editProduct != null ? HtmlUtil.escape(editProduct.getSlug()) : "" %>">
                         </div>
 
                         <div class="col-12">
                             <label class="form-label">Mô tả</label>
-                            <textarea name="description" rows="2" class="form-control"><%= editProduct != null ? (editProduct.getDescription() != null ? editProduct.getDescription() : "") : "" %></textarea>
+                            <textarea name="description" rows="2" class="form-control"><%= editProduct != null ? HtmlUtil.escape(editProduct.getDescription()) : "" %></textarea>
                         </div>
 
                         <div class="col-md-6">
@@ -136,12 +137,12 @@
                         <div class="col-md-6">
                             <label class="form-label">Hương vị</label>
                             <input type="text" name="flavor" class="form-control" maxlength="100"
-                                   value="<%= editProduct != null ? (editProduct.getFlavor() != null ? editProduct.getFlavor() : "") : "" %>">
+                                   value="<%= editProduct != null ? HtmlUtil.escape(editProduct.getFlavor()) : "" %>">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Kích thước</label>
                             <input type="text" name="size" class="form-control" maxlength="50"
-                                   value="<%= editProduct != null ? (editProduct.getSize() != null ? editProduct.getSize() : "") : "" %>">
+                                   value="<%= editProduct != null ? HtmlUtil.escape(editProduct.getSize()) : "" %>">
                         </div>
 
                         <div class="col-md-6">
@@ -154,7 +155,7 @@
                             <input type="file" name="image" class="form-control" accept=".jpg,.jpeg,.png,.webp,.gif" 
                                    <%= editProduct == null ? "required" : "" %>>
                             <% if (editProduct != null && editProduct.getMainImage() != null) { %>
-                            <small class="text-muted d-block mt-1">Ảnh hiện tại: <%=editProduct.getMainImage()%></small>
+                            <small class="text-muted d-block mt-1">Ảnh hiện tại: <%=HtmlUtil.escape(editProduct.getMainImage())%></small>
                             <% } %>
                         </div>
 
@@ -181,7 +182,7 @@
                         <h5 class="card-title mb-0">Danh sách sản phẩm</h5>
                         <form method="get" action="<%=request.getContextPath()%>/admin/products" class="row g-2">
                             <div class="col-auto">
-                                <input type="text" class="form-control" name="q" value="<%=keyword%>" placeholder="Tên / SKU / slug">
+                                <input type="text" class="form-control" name="q" value="<%=HtmlUtil.escape(keyword)%>" placeholder="Tên / SKU / slug">
                             </div>
                             <div class="col-auto">
                                 <select name="status" class="form-select">
@@ -224,13 +225,13 @@
                             <tr>
                                 <td><%=product.getProductId()%></td>
                                 <td>
-                                    <img src="<%=request.getContextPath()%>/<%=image%>" class="thumb" alt="<%=product.getProductName()%>">
+                                    <img src="<%=request.getContextPath()%>/<%=HtmlUtil.escape(image)%>" class="thumb" alt="<%=HtmlUtil.escape(product.getProductName())%>">
                                 </td>
                                 <td>
-                                    <div class="fw-semibold"><%=product.getProductName()%></div>
-                                    <div class="text-muted small">SKU: <%=product.getSku() != null ? product.getSku() : "-"%></div>
+                                    <div class="fw-semibold"><%=HtmlUtil.escape(product.getProductName())%></div>
+                                    <div class="text-muted small">SKU: <%=HtmlUtil.escapeOr(product.getSku(), "-")%></div>
                                 </td>
-                                <td><%=categoryName%></td>
+                                <td><%=HtmlUtil.escape(categoryName)%></td>
                                 <td>
                                     <div><%=product.getPrice() != null ? String.format("%,.0f", product.getPrice()) : "0"%> VNĐ</div>
                                     <% if (product.getSalePrice() != null) { %>
@@ -240,9 +241,9 @@
                                 <td><%=stockText%></td>
                                 <td>
                                     <% if (active) { %>
-                                    <span class="badge bg-success">active</span>
+                                    <span class="badge bg-success">Đang bán</span>
                                     <% } else { %>
-                                    <span class="badge bg-secondary">inactive</span>
+                                    <span class="badge bg-secondary">Đã ẩn</span>
                                     <% } %>
                                 </td>
                                 <td>
@@ -253,8 +254,8 @@
                                     <form method="post" action="<%=request.getContextPath()%>/admin/products" class="d-inline">
                                         <input type="hidden" name="action" value="toggle-status">
                                         <input type="hidden" name="productId" value="<%=product.getProductId()%>">
-                                        <input type="hidden" name="q" value="<%=keyword%>">
-                                        <input type="hidden" name="statusFilter" value="<%=selectedStatus%>">
+                                        <input type="hidden" name="q" value="<%=HtmlUtil.escape(keyword)%>">
+                                        <input type="hidden" name="statusFilter" value="<%=HtmlUtil.escape(selectedStatus)%>">
                                         <% if (active) { %>
                                         <input type="hidden" name="newStatus" value="inactive">
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Ẩn</button>

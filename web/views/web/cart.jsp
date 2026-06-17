@@ -1,5 +1,7 @@
 <%@page import="com.sweetpay.model.CartItem"%>
 <%@page import="java.util.Map"%>
+<%@page import="com.sweetpay.util.CsrfUtil"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="vi">
@@ -16,6 +18,7 @@
 <body class="sweet-cart-page">
 <%
     Map<Integer, CartItem> cart = (Map<Integer, CartItem>) session.getAttribute("cart");
+    String csrfToken = CsrfUtil.getToken(session);
     int cartCount = cart != null ? cart.size() : 0;
     String cartStatus = request.getParameter("status");
     String cartMax = request.getParameter("max");
@@ -60,7 +63,7 @@
     </div>
 
     <% if ("stock-limit".equals(cartStatus)) { %>
-    <div class="alert alert-warning">Số lượng vượt tồn kho. Bạn chỉ có thể chọn tối đa <strong><%=cartMax != null ? cartMax : "giới hạn hiện tại"%></strong>.</div>
+    <div class="alert alert-warning">Số lượng vượt tồn kho. Bạn chỉ có thể chọn tối đa <strong><%=HtmlUtil.escapeOr(cartMax, "gioi han hien tai")%></strong>.</div>
     <% } else if ("out-of-stock".equals(cartStatus)) { %>
     <div class="alert alert-danger">Có sản phẩm vừa hết hàng nên giỏ đã được cập nhật lại.</div>
     <% } %>
@@ -94,16 +97,17 @@
             <tr>
                 <td>
                     <div class="d-flex align-items-center">
-                        <img src="<%=request.getContextPath()%>/<%=imagePath%>" class="product-img-cart me-3 border" alt="<%=item.getProduct().getProductName()%>" loading="lazy">
+                        <img src="<%=request.getContextPath()%>/<%=HtmlUtil.escape(imagePath)%>" class="product-img-cart me-3 border" alt="<%=HtmlUtil.escape(item.getProduct().getProductName())%>" loading="lazy">
                         <div>
-                            <h6 class="mb-1 fw-bold"><%=item.getProduct().getProductName()%></h6>
-                            <small class="text-muted">Vị: <%=item.getProduct().getFlavor() != null ? item.getProduct().getFlavor() : "-"%></small>
+                            <h6 class="mb-1 fw-bold"><%=HtmlUtil.escape(item.getProduct().getProductName())%></h6>
+                            <small class="text-muted">Vị: <%=HtmlUtil.escapeOr(item.getProduct().getFlavor(), "-")%></small>
                         </div>
                     </div>
                 </td>
                 <td><%= String.format("%,.0f", price) %> VNĐ</td>
                 <td>
                     <form action="<%=request.getContextPath()%>/update-cart-quantity" method="post" class="quantity-form">
+                        <input type="hidden" name="csrfToken" value="<%=csrfToken%>">
                         <input type="hidden" name="id" value="<%=item.getProduct().getProductId()%>">
                         <button type="submit" name="action" value="decrease" class="qty-btn" aria-label="Giảm số lượng">-</button>
                         <input type="number"
@@ -118,11 +122,11 @@
                 </td>
                 <td class="fw-bold"><%= String.format("%,.0f", subTotal) %> VNĐ</td>
                 <td class="text-center">
-                    <a href="<%=request.getContextPath()%>/remove-from-cart?id=<%=item.getProduct().getProductId()%>"
-                       class="btn btn-sm btn-outline-danger"
-                       onclick="return confirm('Bạn có chắc muốn xóa món này?')">
-                        Xóa
-                    </a>
+                    <form action="<%=request.getContextPath()%>/remove-from-cart" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa món này?')">
+                        <input type="hidden" name="csrfToken" value="<%=csrfToken%>">
+                        <input type="hidden" name="id" value="<%=item.getProduct().getProductId()%>">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                    </form>
                 </td>
             </tr>
             <%

@@ -1,5 +1,5 @@
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@page import="java.util.List, java.util.Map, java.util.Collections, com.sweetpay.model.Product, com.sweetpay.model.Category"%>
+<%@page import="java.util.List, java.util.Map, java.util.Collections, com.sweetpay.model.Product, com.sweetpay.model.Category, com.sweetpay.util.CsrfUtil, com.sweetpay.util.HtmlUtil"%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -15,8 +15,11 @@
 <body class="home-page">
 <%
     String contextPath = request.getContextPath();
+    String csrfToken = CsrfUtil.getToken(session);
     Integer navUserId = (Integer) session.getAttribute("userId");
     String navUserName = (String) session.getAttribute("userFullName");
+    String newsletterMessage = (String) request.getAttribute("newsletterMessage");
+    String newsletterType = (String) request.getAttribute("newsletterType");
 
     boolean navIsAdmin = false;
     Object isAdminObj = session.getAttribute("isAdmin");
@@ -59,7 +62,7 @@
             </a>
             <% if (navUserId != null) { %>
                 <div class="user-profile">
-                    <span class="home-auth-chip">Chào, <%=navUserName%></span>
+                    <span class="home-auth-chip">Chào, <%=HtmlUtil.escapeOr(navUserName, "Tài khoản")%></span>
                     <a class="home-auth-link" href="<%=contextPath%>/logout">Đăng xuất</a>
                 </div>
             <% } else { %>
@@ -81,12 +84,12 @@
                                 : "assets/images/products/tiramisu.jpg";
                 %>
                 <div class="carousel-item <%= i == 0 ? "active" : "" %>">
-                    <img src="<%=contextPath%>/<%=heroImage%>" class="d-block w-100" alt="<%=p.getProductName()%>"
+                    <img src="<%=contextPath%>/<%=HtmlUtil.escape(heroImage)%>" class="d-block w-100" alt="<%=HtmlUtil.escape(p.getProductName())%>"
                          onerror="this.onerror=null;this.src='<%=contextPath%>/assets/images/products/tiramisu.jpg';">
                     <div class="carousel-caption home-hero-caption">
                         <span class="home-hero-label">Bộ sưu tập trong ngày</span>
-                        <h2><%=p.getProductName()%></h2>
-                        <p class="d-none d-md-block text-truncate-2"><%=p.getDescription() != null ? p.getDescription() : "Bánh thủ công với vị ngọt tinh tế và phần trang trí chỉn chu."%></p>
+                        <h2><%=HtmlUtil.escape(p.getProductName())%></h2>
+                        <p class="d-none d-md-block text-truncate-2"><%=HtmlUtil.escapeOr(p.getDescription(), "Bánh thủ công với vị ngọt tinh tế và phần trang trí chỉn chu.")%></p>
                         <a href="<%=contextPath%>/products" class="btn btn-light home-hero-cta">Khám phá thực đơn</a>
                     </div>
                 </div>
@@ -121,10 +124,10 @@
             %>
             <a class="home-category-item" href="<%=contextPath%>/products?categoryId=<%=cat.getCategoryId()%>">
                 <div class="home-icon-circle">
-                    <img src="<%=contextPath%>/<%=categoryImage%>" alt="<%=cat.getCategoryName()%>" loading="lazy"
+                    <img src="<%=contextPath%>/<%=HtmlUtil.escape(categoryImage)%>" alt="<%=HtmlUtil.escape(cat.getCategoryName())%>" loading="lazy"
                          onerror="this.onerror=null;this.src='<%=contextPath%>/assets/images/products/bo.jpg';">
                 </div>
-                <span class="home-category-label"><%=cat.getCategoryName()%></span>
+                <span class="home-category-label"><%=HtmlUtil.escape(cat.getCategoryName())%></span>
             </a>
             <% } %>
         </div>
@@ -153,11 +156,11 @@
             <article class="home-product-card">
                 <a class="home-product-image-link position-relative" href="<%=contextPath%>/product-detail?id=<%=p.getProductId()%>">
                     <% if (hasSale) { %><span class="home-sale-badge">Sale</span><% } %>
-                    <img src="<%=contextPath%>/<%=cardImage%>" alt="<%=p.getProductName()%>" loading="lazy"
+                    <img src="<%=contextPath%>/<%=HtmlUtil.escape(cardImage)%>" alt="<%=HtmlUtil.escape(p.getProductName())%>" loading="lazy"
                          onerror="this.onerror=null;this.src='<%=contextPath%>/assets/images/products/bo.jpg';">
                 </a>
                 <div class="home-product-body">
-                    <h3><a href="<%=contextPath%>/product-detail?id=<%=p.getProductId()%>"><%=p.getProductName()%></a></h3>
+                    <h3><a href="<%=contextPath%>/product-detail?id=<%=p.getProductId()%>"><%=HtmlUtil.escape(p.getProductName())%></a></h3>
                     <div class="home-product-price">
                         <% if (hasSale) { %>
                         <span class="home-price-sale"><%=String.format("%,.0f", p.getSalePrice())%>đ</span>
@@ -173,7 +176,11 @@
                         <% if (outOfStock) { %>
                         <button type="button" class="btn btn-buy-disabled w-100" disabled>Hết hàng</button>
                         <% } else { %>
-                        <a href="<%=contextPath%>/add-to-cart?id=<%=p.getProductId()%>" class="btn btn-buy w-100">Thêm vào giỏ</a>
+                        <form action="<%=contextPath%>/add-to-cart" method="post" class="w-100">
+                            <input type="hidden" name="csrfToken" value="<%=csrfToken%>">
+                            <input type="hidden" name="id" value="<%=p.getProductId()%>">
+                            <button type="submit" class="btn btn-buy w-100">Thêm vào giỏ</button>
+                        </form>
                         <% } %>
                     </div>
                 </div>
@@ -202,18 +209,20 @@
         <div class="home-store-grid">
             <div class="home-store-item">
                 <strong>SweetPay Bakery Flagship</strong>
-                <span>Quận 1, TP. Hồ Chí Minh</span>
+                <span>Học viện Công nghệ Bưu chính Viễn thông</span>
+                <span>Số 96A Trần Phú, phường Mộ Lao, quận Hà Đông</span>
                 <span>08:00 - 21:30 mỗi ngày</span>
             </div>
             <div class="home-store-item">
                 <strong>Hotline</strong>
-                <span>0900 000 000</span>
+                <span>0967436122</span>
                 <span>Nhận tư vấn bánh sinh nhật, tiệc nhỏ và quà tặng.</span>
             </div>
             <div class="home-store-item">
                 <strong>Đặt trước</strong>
                 <span>Nên đặt trước 24 giờ với bánh kem trang trí riêng.</span>
                 <span>Thanh toán COD hoặc chuyển khoản.</span>
+                <span>Cảm ơn thầy đã ghé thăm trang web của chúng em. Mong thầy sẽ cho chúng em điểm cao ạ &lt;3</span>
             </div>
         </div>
     </section>
@@ -228,9 +237,14 @@
         <form class="home-newsletter" action="<%=contextPath%>/home" method="get">
             <label for="newsletterEmail">Nhận thông báo về hương vị mới theo mùa</label>
             <div>
-                <input id="newsletterEmail" type="email" class="form-control" placeholder="Email của bạn">
+                <input id="newsletterEmail" name="newsletterEmail" type="email" class="form-control" placeholder="Email cua ban" required>
                 <button type="submit" class="btn sweet-btn-primary">Đăng ký</button>
             </div>
+            <% if (newsletterMessage != null) { %>
+            <div class="alert alert-<%="danger".equals(newsletterType) ? "danger" : "success"%> py-2 px-3 mt-2 mb-0">
+                <%=HtmlUtil.escape(newsletterMessage)%>
+            </div>
+            <% } %>
         </form>
     </div>
 </footer>

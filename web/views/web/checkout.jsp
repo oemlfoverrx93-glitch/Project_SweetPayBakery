@@ -1,6 +1,8 @@
 <%@page import="com.sweetpay.model.CartItem"%>
 <%@page import="java.math.BigDecimal"%>
 <%@page import="java.util.Map"%>
+<%@page import="com.sweetpay.util.CsrfUtil"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="vi">
@@ -17,6 +19,7 @@
 <body class="sweet-checkout-page">
 <%
     Map<Integer, CartItem> cart = (Map<Integer, CartItem>) session.getAttribute("cart");
+    String csrfToken = CsrfUtil.getToken(session);
     BigDecimal subtotal = (BigDecimal) request.getAttribute("subtotal");
     BigDecimal discountAmount = (BigDecimal) request.getAttribute("discountAmount");
     BigDecimal grandTotal = (BigDecimal) request.getAttribute("grandTotal");
@@ -75,7 +78,7 @@
     </div>
 
     <% if (error != null) { %>
-    <div class="alert alert-danger"><%= error %></div>
+    <div class="alert alert-danger"><%= HtmlUtil.escape(error) %></div>
     <% } %>
 
     <% if (cart == null || cart.isEmpty()) { %>
@@ -85,6 +88,7 @@
     <% } else { %>
 
     <form id="checkoutForm" action="<%=request.getContextPath()%>/place-order" method="post">
+        <input type="hidden" name="csrfToken" value="<%=csrfToken%>">
         <input type="hidden" name="userId" value="<%=userId != null ? userId : ""%>">
         <div class="row g-4">
             <div class="col-lg-7">
@@ -95,18 +99,18 @@
                         <div class="mb-3">
                             <label class="form-label">Họ và tên người nhận</label>
                             <input type="text" name="recipientName" class="form-control" required
-                                   value="<%=request.getParameter("recipientName") != null ? request.getParameter("recipientName") : ""%>">
+                                   value="<%=HtmlUtil.escape(request.getParameter("recipientName"))%>">
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Số điện thoại</label>
                             <input type="text" name="recipientPhone" class="form-control" required
-                                   value="<%=request.getParameter("recipientPhone") != null ? request.getParameter("recipientPhone") : ""%>">
+                                   value="<%=HtmlUtil.escape(request.getParameter("recipientPhone"))%>">
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Địa chỉ giao hàng</label>
-                            <textarea name="shippingAddress" class="form-control" rows="3" required><%=request.getParameter("shippingAddress") != null ? request.getParameter("shippingAddress") : ""%></textarea>
+                            <textarea name="shippingAddress" class="form-control" rows="3" required><%=HtmlUtil.escape(request.getParameter("shippingAddress"))%></textarea>
                         </div>
 
                         <div class="row g-3">
@@ -128,7 +132,7 @@
 
                         <div class="mt-3">
                             <label class="form-label">Ghi chú cho tiệm bánh</label>
-                            <textarea name="note" class="form-control" rows="2" placeholder="VD: ít ngọt, ghi lời chúc, thời gian nhận..."><%=request.getParameter("note") != null ? request.getParameter("note") : ""%></textarea>
+                            <textarea name="note" class="form-control" rows="2" placeholder="VD: ít ngọt, ghi lời chúc, thời gian nhận..."><%=HtmlUtil.escape(request.getParameter("note"))%></textarea>
                         </div>
                     </div>
                 </div>
@@ -151,7 +155,7 @@
                             %>
                             <li class="list-group-item px-0 d-flex justify-content-between gap-3">
                                 <div>
-                                    <div><strong><%=item.getProduct().getProductName()%></strong></div>
+                                    <div><strong><%=HtmlUtil.escape(item.getProduct().getProductName())%></strong></div>
                                     <small class="text-muted">x <%=item.getQuantity()%></small>
                                 </div>
                                 <span><%=String.format("%,.0f", lineTotal)%> VNĐ</span>
@@ -162,7 +166,7 @@
                         <label class="form-label">Mã voucher</label>
                         <div class="input-group mb-2">
                             <input type="text" name="voucherCode" class="form-control" placeholder="Nhập mã giảm giá"
-                                   value="<%=voucherCode != null ? voucherCode : ""%>">
+                                   value="<%=HtmlUtil.escape(voucherCode)%>">
                             <button type="submit"
                                     class="btn btn-outline-dark"
                                     formaction="<%=request.getContextPath()%>/checkout"
@@ -172,9 +176,9 @@
                             </button>
                         </div>
                         <% if (voucherSuccess != null) { %>
-                        <div class="alert alert-success py-2"><%=voucherSuccess%></div>
+                        <div class="alert alert-success py-2"><%=HtmlUtil.escape(voucherSuccess)%></div>
                         <% } else if (voucherError != null) { %>
-                        <div class="alert alert-warning py-2"><%=voucherError%></div>
+                        <div class="alert alert-warning py-2"><%=HtmlUtil.escape(voucherError)%></div>
                         <% } %>
 
                         <hr>

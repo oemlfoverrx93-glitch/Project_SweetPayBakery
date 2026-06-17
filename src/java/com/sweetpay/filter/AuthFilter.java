@@ -19,7 +19,8 @@ import javax.servlet.http.HttpSession;
         "/checkout",
         "/place-order",
         "/order-history",
-        "/order-detail"
+        "/order-detail",
+        "/payment"
 })
 public class AuthFilter implements Filter {
 

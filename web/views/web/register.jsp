@@ -1,4 +1,5 @@
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -34,7 +35,7 @@
 
                     <% if (error != null && !error.isEmpty()) { %>
                     <div class="alert alert-danger" role="alert">
-                        <%= error %>
+                        <%= HtmlUtil.escape(error) %>
                     </div>
                     <% } %>
 

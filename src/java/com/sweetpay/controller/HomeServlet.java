@@ -18,6 +18,19 @@ public class HomeServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        String newsletterEmail = request.getParameter("newsletterEmail");
+        if (newsletterEmail != null) {
+            String normalizedEmail = newsletterEmail.trim();
+            if (normalizedEmail.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+                request.setAttribute("newsletterMessage", "Đã ghi nhận email " + normalizedEmail
+                        + ". SweetPay sẽ gửi thông báo khi có hương vị mới.");
+                request.setAttribute("newsletterType", "success");
+            } else {
+                request.setAttribute("newsletterMessage", "Email chưa hợp lệ. Vui lòng kiểm tra lại.");
+                request.setAttribute("newsletterType", "danger");
+            }
+        }
+
         ProductDAO productDAO = new ProductDAO();
         List<Product> products = productDAO.getAllProducts();
         List<Category> categories = productDAO.getActiveCategories();

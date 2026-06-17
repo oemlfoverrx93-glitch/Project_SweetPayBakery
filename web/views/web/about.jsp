@@ -1,5 +1,6 @@
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@page import="java.util.Map"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -47,7 +48,7 @@
                 <span class="home-cart-count"><%=cartCount%></span>
             </a>
             <% if (navUserId != null) { %>
-            <span class="home-auth-chip"><%=navUserName == null || navUserName.trim().isEmpty() ? "Tài khoản" : navUserName%></span>
+            <span class="home-auth-chip"><%=HtmlUtil.escapeOr(navUserName, "Tài khoản")%></span>
             <a class="home-auth-link" href="<%=contextPath%>/logout">Đăng xuất</a>
             <% } else { %>
             <a class="home-auth-link primary" href="<%=contextPath%>/login">Đăng nhập</a>
@@ -99,37 +100,37 @@
             <div class="col-md-3 col-sm-6 text-center">
                 <div class="member-card">
                     <div class="avatar-wrapper">
-                        <img src="<%=contextPath%>/assets/images/minh.jpg" alt="Trần Minh">
-                    </div>
-                    <h5 class="mt-3 mb-1">Trần Minh</h5>
-                    <p class="text-muted small">Frontend & Backend</p>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 text-center">
-                <div class="member-card">
-                    <div class="avatar-wrapper">
                         <img src="<%=contextPath%>/assets/images/mai.jpg" alt="Nguyễn Thị Tuyết Mai">
                     </div>
                     <h5 class="mt-3 mb-1">Nguyễn Thị Tuyết Mai</h5>
-                    <p class="text-muted small">Database & Payment</p>
+                    <p class="text-muted small">B24DCTC069</p>
                 </div>
             </div>
             <div class="col-md-3 col-sm-6 text-center">
                 <div class="member-card">
                     <div class="avatar-wrapper">
-                        <img src="<%=contextPath%>/assets/images/linh.jpg" alt="Lưu Linh">
+                        <img src="<%=contextPath%>/assets/images/minh.jpg" alt="Trần Tuấn Minh">
                     </div>
-                    <h5 class="mt-3 mb-1">Lưu Linh</h5>
-                    <p class="text-muted small">UI & Testing</p>
+                    <h5 class="mt-3 mb-1">Trần Tuấn Minh</h5>
+                    <p class="text-muted small">B24DCTC073</p>
                 </div>
             </div>
             <div class="col-md-3 col-sm-6 text-center">
                 <div class="member-card">
                     <div class="avatar-wrapper">
-                        <img src="<%=contextPath%>/assets/images/nhung.jpg" alt="Nguyễn Phương Nhung">
+                        <img src="<%=contextPath%>/assets/images/nhung.jpg" alt="Nguyễn Hữu Thị Phương Nhung">
                     </div>
-                    <h5 class="mt-3 mb-1">Nguyễn Phương Nhung</h5>
-                    <p class="text-muted small">Orders & Admin</p>
+                    <h5 class="mt-3 mb-1">Nguyễn Hữu Thị Phương Nhung</h5>
+                    <p class="text-muted small">B24DCTC079</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 text-center">
+                <div class="member-card">
+                    <div class="avatar-wrapper">
+                        <img src="<%=contextPath%>/assets/images/linh.jpg" alt="Lưu Linh Linh">
+                    </div>
+                    <h5 class="mt-3 mb-1">Lưu Linh Linh</h5>
+                    <p class="text-muted small">B24DCTC059</p>
                 </div>
             </div>
         </div>

@@ -1,5 +1,7 @@
 <%@page import="com.sweetpay.model.StoreBankAccount"%>
 <%@page import="java.net.URLEncoder"%>
+<%@page import="com.sweetpay.util.CsrfUtil"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="vi">
@@ -20,6 +22,7 @@
     String orderCode = (String) request.getAttribute("orderCode");
     Integer orderId = (Integer) request.getAttribute("orderId");
     StoreBankAccount account = (StoreBankAccount) request.getAttribute("account");
+    String csrfToken = CsrfUtil.getToken(session);
 
     if (qrText == null) {
         response.sendRedirect(request.getContextPath() + "/home");
@@ -71,16 +74,16 @@
                     <table class="info-table w-100">
                         <tr>
                             <td>Ngân hàng</td>
-                            <td><%=bankName%></td>
+                            <td><%=HtmlUtil.escape(bankName)%></td>
                         </tr>
                         <tr>
                             <td>Chủ tài khoản</td>
-                            <td><%=accountHolder%></td>
+                            <td><%=HtmlUtil.escape(accountHolder)%></td>
                         </tr>
                         <tr>
                             <td>Số tài khoản</td>
                             <td>
-                                <span id="stk"><%=accountNumber%></span>
+                                <span id="stk"><%=HtmlUtil.escape(accountNumber)%></span>
                                 <button class="copy-btn" onclick="copyText('stk', this)" type="button">Sao chép</button>
                             </td>
                         </tr>
@@ -91,7 +94,7 @@
                         <tr>
                             <td>Nội dung CK</td>
                             <td>
-                                <span id="content"><%=orderCode%></span>
+                                <span id="content"><%=HtmlUtil.escape(orderCode)%></span>
                                 <button class="copy-btn" onclick="copyText('content', this)" type="button">Sao chép</button>
                             </td>
                         </tr>
@@ -102,10 +105,11 @@
                     </div>
 
                     <div class="d-grid gap-2">
-                        <a href="<%=request.getContextPath()%>/order-success?id=<%=orderId%>"
-                           class="btn btn-confirm text-decoration-none text-center">
-                            Xác nhận đã chuyển khoản
-                        </a>
+                        <form action="<%=request.getContextPath()%>/payment" method="post" class="d-grid">
+                            <input type="hidden" name="csrfToken" value="<%=csrfToken%>">
+                            <input type="hidden" name="orderId" value="<%=orderId%>">
+                            <button type="submit" class="btn btn-confirm">Xác nhận đã chuyển khoản</button>
+                        </form>
                         <a href="<%=request.getContextPath()%>/home"
                            class="btn btn-outline-secondary text-decoration-none text-center">
                             Quay về trang chủ
@@ -115,7 +119,7 @@
             </div>
 
             <p class="text-center text-muted mt-3 small">
-                Mã đơn hàng: <strong><%=orderCode%></strong>. Admin sẽ xác nhận sau khi kiểm tra giao dịch.
+                Mã đơn hàng: <strong><%=HtmlUtil.escape(orderCode)%></strong>. Admin sẽ xác nhận sau khi kiểm tra giao dịch.
             </p>
         </div>
     </div>

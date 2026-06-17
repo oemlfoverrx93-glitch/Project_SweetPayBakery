@@ -1,5 +1,6 @@
 <%@page import="java.util.List"%>
 <%@page import="com.sweetpay.model.Order"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%!
     private String viStatus(String status) {
@@ -72,7 +73,7 @@
                     <tbody>
                     <% for (Order order : orders) { %>
                     <tr>
-                        <td><strong><%=order.getOrderCode()%></strong></td>
+                        <td><strong><%=HtmlUtil.escape(order.getOrderCode())%></strong></td>
                         <td><%=order.getOrderDate()%></td>
                         <td><%=String.format("%,.0f", order.getTotalAmount())%> VNĐ</td>
                         <td><span class="badge bg-secondary"><%=viStatus(order.getOrderStatus())%></span></td>

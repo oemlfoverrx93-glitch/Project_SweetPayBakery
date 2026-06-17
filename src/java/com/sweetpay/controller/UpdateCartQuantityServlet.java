@@ -2,6 +2,7 @@ package com.sweetpay.controller;
 
 import com.sweetpay.dao.ProductDAO;
 import com.sweetpay.model.CartItem;
+import com.sweetpay.util.CsrfUtil;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,10 @@ public class UpdateCartQuantityServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
+        if (!CsrfUtil.isValid(request)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
 
         int id;
         try {

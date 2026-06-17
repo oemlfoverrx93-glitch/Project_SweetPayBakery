@@ -24,7 +24,6 @@ public final class AuthSessionUtil {
         session.setAttribute("isAdmin", isAdmin);
         session.setAttribute("userFullName", user.getFullName());
         session.setAttribute("userEmail", user.getEmail());
-        session.setAttribute("userAvatar", user.getAvatarUrl());
     }
 
     public static void clear(HttpSession session) {
@@ -39,7 +38,6 @@ public final class AuthSessionUtil {
         session.removeAttribute("isAdmin");
         session.removeAttribute("userFullName");
         session.removeAttribute("userEmail");
-        session.removeAttribute("userAvatar");
     }
 
     public static Integer getUserId(HttpSession session) {

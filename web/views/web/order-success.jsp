@@ -1,4 +1,5 @@
 <%@page import="com.sweetpay.model.Order"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="vi">
@@ -35,7 +36,7 @@
             <span class="sweet-eyebrow justify-content-center">Hoàn tất</span>
             <h1 class="sweet-page-title mb-3">Đặt hàng thành công</h1>
             <p class="mb-1 text-muted">Mã đơn hàng của bạn</p>
-            <div class="fs-3 fw-bold mb-3"><%=order.getOrderCode()%></div>
+            <div class="fs-3 fw-bold mb-3"><%=HtmlUtil.escape(order.getOrderCode())%></div>
             <p class="text-muted mb-4">
                 Chúng tôi đã ghi nhận đơn hàng và sẽ xử lý sớm nhất. Bạn có thể theo dõi trạng thái trong lịch sử đơn hàng.
             </p>

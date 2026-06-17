@@ -2,6 +2,7 @@
 <%@page import="com.sweetpay.model.OrderDetail"%>
 <%@page import="com.sweetpay.model.Payment"%>
 <%@page import="com.sweetpay.model.Order"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%!
     private String viStatus(String status) {
@@ -51,7 +52,7 @@
     <div class="sweet-page-heading">
         <div>
             <span class="sweet-eyebrow">Chi tiết đơn</span>
-            <h1 class="sweet-page-title"><%=order.getOrderCode()%></h1>
+            <h1 class="sweet-page-title"><%=HtmlUtil.escape(order.getOrderCode())%></h1>
             <p class="sweet-page-subtitle">Thông tin nhận hàng, thanh toán và các sản phẩm trong đơn.</p>
         </div>
         <a href="<%=request.getContextPath()%>/order-history" class="btn btn-outline-dark">Về lịch sử đơn</a>
@@ -66,14 +67,14 @@
             <div class="card h-100">
                 <div class="card-body p-4">
                     <h5 class="card-title">Thông tin nhận hàng</h5>
-                    <p><strong>Người nhận:</strong> <%=order.getRecipientName()%></p>
-                    <p><strong>Số điện thoại:</strong> <%=order.getRecipientPhone()%></p>
-                    <p><strong>Địa chỉ:</strong> <%=order.getShippingAddress()%></p>
+                    <p><strong>Người nhận:</strong> <%=HtmlUtil.escape(order.getRecipientName())%></p>
+                    <p><strong>Số điện thoại:</strong> <%=HtmlUtil.escape(order.getRecipientPhone())%></p>
+                    <p><strong>Địa chỉ:</strong> <%=HtmlUtil.escape(order.getShippingAddress())%></p>
                     <p><strong>Hình thức nhận:</strong> <%=viStatus(order.getReceiveMethod())%></p>
                     <p><strong>Trạng thái đơn:</strong> <span class="badge bg-secondary"><%=viStatus(order.getOrderStatus())%></span></p>
                     <p><strong>Trạng thái thanh toán:</strong> <span class="badge bg-dark"><%=viStatus(order.getPaymentStatus())%></span></p>
                     <p><strong>Ngày đặt:</strong> <%=order.getOrderDate()%></p>
-                    <p><strong>Ghi chú:</strong> <%=order.getNote() != null ? order.getNote() : "-"%></p>
+                    <p><strong>Ghi chú:</strong> <%=HtmlUtil.escapeOr(order.getNote(), "-")%></p>
                 </div>
             </div>
         </div>
@@ -86,7 +87,7 @@
                     <p><strong>Phương thức:</strong> <%=viStatus(payment.getPaymentMethod())%></p>
                     <p><strong>Trạng thái:</strong> <%=viStatus(payment.getPaymentStatus())%></p>
                     <p><strong>Số tiền:</strong> <%=String.format("%,.0f", payment.getAmount())%> VNĐ</p>
-                    <p><strong>Mã giao dịch:</strong> <%=payment.getTransactionCode() != null ? payment.getTransactionCode() : "-"%></p>
+                    <p><strong>Mã giao dịch:</strong> <%=HtmlUtil.escapeOr(payment.getTransactionCode(), "-")%></p>
                     <p><strong>Thời gian thanh toán:</strong> <%=payment.getPaidAt() != null ? payment.getPaidAt() : "-"%></p>
                     <% } else { %>
                     <p class="text-muted mb-0">Chưa có bản ghi thanh toán.</p>

@@ -437,9 +437,14 @@ public class OrderDAO {
             return -1;
         }
 
-        // total_amount is included explicitly to support both computed-column DBs
-        // and regular-column DBs (where it would be NULL without this).
-        String insertOrderSql = "INSERT INTO orders ("
+        boolean totalAmountComputed = isTotalAmountComputed(conn);
+        String insertOrderSql = totalAmountComputed
+                ? "INSERT INTO orders ("
+                + "user_id, voucher_id, order_code, recipient_name, recipient_phone, shipping_address, "
+                + "receive_method, receive_time, subtotal, discount_amount, shipping_fee, "
+                + "order_status, note, order_date"
+                + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                : "INSERT INTO orders ("
                 + "user_id, voucher_id, order_code, recipient_name, recipient_phone, shipping_address, "
                 + "receive_method, receive_time, subtotal, discount_amount, shipping_fee, total_amount, "
                 + "order_status, note, order_date"
@@ -458,21 +463,24 @@ public class OrderDAO {
             }
             order.setTotalAmount(total);
 
-            psOrder.setInt(1, order.getUserId());
-            setNullableInt(psOrder, 2, order.getVoucherId());
-            psOrder.setString(3, defaultString(order.getOrderCode(), generateOrderCode()));
-            psOrder.setString(4, defaultString(order.getRecipientName(), "Guest"));
-            psOrder.setString(5, defaultString(order.getRecipientPhone(), "N/A"));
-            psOrder.setString(6, defaultString(order.getShippingAddress(), "N/A"));
-            psOrder.setString(7, defaultString(order.getReceiveMethod(), "delivery"));
-            psOrder.setTimestamp(8, order.getReceiveTime());
-            psOrder.setBigDecimal(9, subtotal);
-            psOrder.setBigDecimal(10, discount);
-            psOrder.setBigDecimal(11, shipping);
-            psOrder.setBigDecimal(12, total);                     // <-- fix: explicit total_amount
-            psOrder.setString(13, defaultString(order.getOrderStatus(), "pending"));
-            psOrder.setString(14, order.getNote());
-            psOrder.setTimestamp(15, order.getOrderDate() != null ? order.getOrderDate() : new Timestamp(System.currentTimeMillis()));
+            int idx = 1;
+            psOrder.setInt(idx++, order.getUserId());
+            setNullableInt(psOrder, idx++, order.getVoucherId());
+            psOrder.setString(idx++, defaultString(order.getOrderCode(), generateOrderCode()));
+            psOrder.setString(idx++, defaultString(order.getRecipientName(), "Guest"));
+            psOrder.setString(idx++, defaultString(order.getRecipientPhone(), "N/A"));
+            psOrder.setString(idx++, defaultString(order.getShippingAddress(), "N/A"));
+            psOrder.setString(idx++, defaultString(order.getReceiveMethod(), "delivery"));
+            psOrder.setTimestamp(idx++, order.getReceiveTime());
+            psOrder.setBigDecimal(idx++, subtotal);
+            psOrder.setBigDecimal(idx++, discount);
+            psOrder.setBigDecimal(idx++, shipping);
+            if (!totalAmountComputed) {
+                psOrder.setBigDecimal(idx++, total);
+            }
+            psOrder.setString(idx++, defaultString(order.getOrderStatus(), "pending"));
+            psOrder.setString(idx++, order.getNote());
+            psOrder.setTimestamp(idx++, order.getOrderDate() != null ? order.getOrderDate() : new Timestamp(System.currentTimeMillis()));
 
             psOrder.executeUpdate();
 
@@ -484,6 +492,15 @@ public class OrderDAO {
         }
 
         return -1;
+    }
+
+    private boolean isTotalAmountComputed(Connection conn) throws SQLException {
+        String sql = "SELECT is_computed FROM sys.columns "
+                + "WHERE object_id = OBJECT_ID('dbo.orders') AND name = 'total_amount'";
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() && rs.getBoolean("is_computed");
+        }
     }
 
     private BigDecimal defaultMoney(BigDecimal value) {

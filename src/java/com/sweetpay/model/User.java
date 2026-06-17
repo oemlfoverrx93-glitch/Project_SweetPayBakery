@@ -14,11 +14,6 @@ public class User {
     private String address;
     private boolean status;
     private Date createdAt;
-    private String googleSub;
-    private String authProvider;
-    private String avatarUrl;
-    private boolean emailVerified;
-    private Date lastLoginAt;
     private int orderCount;
 
     public int getUserId() {
@@ -99,46 +94,6 @@ public class User {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public String getGoogleSub() {
-        return googleSub;
-    }
-
-    public void setGoogleSub(String googleSub) {
-        this.googleSub = googleSub;
-    }
-
-    public String getAuthProvider() {
-        return authProvider;
-    }
-
-    public void setAuthProvider(String authProvider) {
-        this.authProvider = authProvider;
-    }
-
-    public String getAvatarUrl() {
-        return avatarUrl;
-    }
-
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
-    }
-
-    public boolean isEmailVerified() {
-        return emailVerified;
-    }
-
-    public void setEmailVerified(boolean emailVerified) {
-        this.emailVerified = emailVerified;
-    }
-
-    public Date getLastLoginAt() {
-        return lastLoginAt;
-    }
-
-    public void setLastLoginAt(Date lastLoginAt) {
-        this.lastLoginAt = lastLoginAt;
     }
 
     public int getOrderCount() {

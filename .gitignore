@@ -21,6 +21,9 @@ Thumbs.db
 .idea/
 .vscode/
 
+# Local developer tools
+.tools/
+
 # Tomcat temporary files
 /work/
 temp/

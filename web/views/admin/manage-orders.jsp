@@ -1,6 +1,28 @@
 <%@page import="java.util.List"%>
 <%@page import="com.sweetpay.model.Order"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%!
+    private String orderStatusLabel(String status) {
+        if ("pending".equals(status)) return "Ch&#7901; x&aacute;c nh&#7853;n";
+        if ("confirmed".equals(status)) return "&#272;&atilde; x&aacute;c nh&#7853;n";
+        if ("preparing".equals(status)) return "&#272;ang chu&#7849;n b&#7883;";
+        if ("shipping".equals(status)) return "&#272;ang giao";
+        if ("ready_for_pickup".equals(status)) return "Ch&#7901; nh&#7853;n t&#7841;i ti&#7879;m";
+        if ("completed".equals(status)) return "Ho&agrave;n t&#7845;t";
+        if ("cancelled".equals(status)) return "&#272;&atilde; h&#7911;y";
+        return status == null ? "-" : status;
+    }
+
+    private String paymentStatusLabel(String status) {
+        if ("pending".equals(status)) return "Ch&#7901; thanh to&aacute;n";
+        if ("unpaid".equals(status)) return "Ch&#432;a thanh to&aacute;n";
+        if ("paid".equals(status)) return "&#272;&atilde; thanh to&aacute;n";
+        if ("failed".equals(status)) return "Th&#7845;t b&#7841;i";
+        if ("refunded".equals(status)) return "&#272;&atilde; ho&agrave;n ti&#7873;n";
+        return status == null ? "-" : status;
+    }
+%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -57,29 +79,29 @@
                     <label class="form-label">Trạng thái đơn</label>
                     <select name="orderStatus" class="form-select">
                         <option value="all" <%= "all".equals(selectedOrderStatus) ? "selected" : "" %>>Tất cả</option>
-                        <option value="pending" <%= "pending".equals(selectedOrderStatus) ? "selected" : "" %>>pending</option>
-                        <option value="confirmed" <%= "confirmed".equals(selectedOrderStatus) ? "selected" : "" %>>confirmed</option>
-                        <option value="preparing" <%= "preparing".equals(selectedOrderStatus) ? "selected" : "" %>>preparing</option>
-                        <option value="shipping" <%= "shipping".equals(selectedOrderStatus) ? "selected" : "" %>>shipping</option>
-                        <option value="ready_for_pickup" <%= "ready_for_pickup".equals(selectedOrderStatus) ? "selected" : "" %>>ready_for_pickup</option>
-                        <option value="completed" <%= "completed".equals(selectedOrderStatus) ? "selected" : "" %>>completed</option>
-                        <option value="cancelled" <%= "cancelled".equals(selectedOrderStatus) ? "selected" : "" %>>cancelled</option>
+                        <option value="pending" <%= "pending".equals(selectedOrderStatus) ? "selected" : "" %>><%=orderStatusLabel("pending")%></option>
+                        <option value="confirmed" <%= "confirmed".equals(selectedOrderStatus) ? "selected" : "" %>><%=orderStatusLabel("confirmed")%></option>
+                        <option value="preparing" <%= "preparing".equals(selectedOrderStatus) ? "selected" : "" %>><%=orderStatusLabel("preparing")%></option>
+                        <option value="shipping" <%= "shipping".equals(selectedOrderStatus) ? "selected" : "" %>><%=orderStatusLabel("shipping")%></option>
+                        <option value="ready_for_pickup" <%= "ready_for_pickup".equals(selectedOrderStatus) ? "selected" : "" %>><%=orderStatusLabel("ready_for_pickup")%></option>
+                        <option value="completed" <%= "completed".equals(selectedOrderStatus) ? "selected" : "" %>><%=orderStatusLabel("completed")%></option>
+                        <option value="cancelled" <%= "cancelled".equals(selectedOrderStatus) ? "selected" : "" %>><%=orderStatusLabel("cancelled")%></option>
                     </select>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Trạng thái thanh toán</label>
                     <select name="paymentStatus" class="form-select">
                         <option value="all" <%= "all".equals(selectedPaymentStatus) ? "selected" : "" %>>Tất cả</option>
-                        <option value="pending" <%= "pending".equals(selectedPaymentStatus) ? "selected" : "" %>>pending</option>
-                        <option value="unpaid" <%= "unpaid".equals(selectedPaymentStatus) ? "selected" : "" %>>unpaid</option>
-                        <option value="paid" <%= "paid".equals(selectedPaymentStatus) ? "selected" : "" %>>paid</option>
-                        <option value="failed" <%= "failed".equals(selectedPaymentStatus) ? "selected" : "" %>>failed</option>
-                        <option value="refunded" <%= "refunded".equals(selectedPaymentStatus) ? "selected" : "" %>>refunded</option>
+                        <option value="pending" <%= "pending".equals(selectedPaymentStatus) ? "selected" : "" %>><%=paymentStatusLabel("pending")%></option>
+                        <option value="unpaid" <%= "unpaid".equals(selectedPaymentStatus) ? "selected" : "" %>><%=paymentStatusLabel("unpaid")%></option>
+                        <option value="paid" <%= "paid".equals(selectedPaymentStatus) ? "selected" : "" %>><%=paymentStatusLabel("paid")%></option>
+                        <option value="failed" <%= "failed".equals(selectedPaymentStatus) ? "selected" : "" %>><%=paymentStatusLabel("failed")%></option>
+                        <option value="refunded" <%= "refunded".equals(selectedPaymentStatus) ? "selected" : "" %>><%=paymentStatusLabel("refunded")%></option>
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Tìm kiếm</label>
-                    <input type="text" name="q" class="form-control" value="<%=keyword%>"
+                    <input type="text" name="q" class="form-control" value="<%=HtmlUtil.escape(keyword)%>"
                            placeholder="Mã đơn / người nhận / SĐT">
                 </div>
                 <div class="col-md-2 d-grid">
@@ -114,39 +136,39 @@
                 <% for (Order order : orders) { %>
                 <tr>
                     <td><%=order.getOrderId()%></td>
-                    <td><strong><%=order.getOrderCode()%></strong></td>
-                    <td><%=order.getRecipientName()%></td>
-                    <td><%=order.getRecipientPhone()%></td>
+                    <td><strong><%=HtmlUtil.escape(order.getOrderCode())%></strong></td>
+                    <td><%=HtmlUtil.escape(order.getRecipientName())%></td>
+                    <td><%=HtmlUtil.escape(order.getRecipientPhone())%></td>
                     <td><%=String.format("%,.0f", order.getTotalAmount())%> VNĐ</td>
-                    <td><span class="badge bg-primary"><%=order.getOrderStatus()%></span></td>
-                    <td><span class="badge bg-dark"><%=order.getPaymentStatus()%></span></td>
+                    <td><span class="badge bg-primary"><%=orderStatusLabel(order.getOrderStatus())%></span></td>
+                    <td><span class="badge bg-dark"><%=paymentStatusLabel(order.getPaymentStatus())%></span></td>
                     <td><%=order.getOrderDate()%></td>
                     <td class="admin-quick-update">
                         <form method="post" action="<%=request.getContextPath()%>/admin/orders" class="row g-2">
                             <input type="hidden" name="orderId" value="<%=order.getOrderId()%>">
                             <input type="hidden" name="from" value="list">
-                            <input type="hidden" name="orderStatusFilter" value="<%=selectedOrderStatus%>">
-                            <input type="hidden" name="paymentStatusFilter" value="<%=selectedPaymentStatus%>">
-                            <input type="hidden" name="q" value="<%=keyword%>">
+                            <input type="hidden" name="orderStatusFilter" value="<%=HtmlUtil.escape(selectedOrderStatus)%>">
+                            <input type="hidden" name="paymentStatusFilter" value="<%=HtmlUtil.escape(selectedPaymentStatus)%>">
+                            <input type="hidden" name="q" value="<%=HtmlUtil.escape(keyword)%>">
 
                             <div class="col-md-5">
                                 <select class="form-select form-select-sm" name="orderStatus">
-                                    <option value="pending" <%= "pending".equals(order.getOrderStatus()) ? "selected" : "" %>>pending</option>
-                                    <option value="confirmed" <%= "confirmed".equals(order.getOrderStatus()) ? "selected" : "" %>>confirmed</option>
-                                    <option value="preparing" <%= "preparing".equals(order.getOrderStatus()) ? "selected" : "" %>>preparing</option>
-                                    <option value="shipping" <%= "shipping".equals(order.getOrderStatus()) ? "selected" : "" %>>shipping</option>
-                                    <option value="ready_for_pickup" <%= "ready_for_pickup".equals(order.getOrderStatus()) ? "selected" : "" %>>ready_for_pickup</option>
-                                    <option value="completed" <%= "completed".equals(order.getOrderStatus()) ? "selected" : "" %>>completed</option>
-                                    <option value="cancelled" <%= "cancelled".equals(order.getOrderStatus()) ? "selected" : "" %>>cancelled</option>
+                                    <option value="pending" <%= "pending".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("pending")%></option>
+                                    <option value="confirmed" <%= "confirmed".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("confirmed")%></option>
+                                    <option value="preparing" <%= "preparing".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("preparing")%></option>
+                                    <option value="shipping" <%= "shipping".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("shipping")%></option>
+                                    <option value="ready_for_pickup" <%= "ready_for_pickup".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("ready_for_pickup")%></option>
+                                    <option value="completed" <%= "completed".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("completed")%></option>
+                                    <option value="cancelled" <%= "cancelled".equals(order.getOrderStatus()) ? "selected" : "" %>><%=orderStatusLabel("cancelled")%></option>
                                 </select>
                             </div>
                             <div class="col-md-4">
                                 <select class="form-select form-select-sm" name="paymentStatus">
-                                    <option value="pending" <%= "pending".equals(order.getPaymentStatus()) ? "selected" : "" %>>pending</option>
-                                    <option value="unpaid" <%= "unpaid".equals(order.getPaymentStatus()) ? "selected" : "" %>>unpaid</option>
-                                    <option value="paid" <%= "paid".equals(order.getPaymentStatus()) ? "selected" : "" %>>paid</option>
-                                    <option value="failed" <%= "failed".equals(order.getPaymentStatus()) ? "selected" : "" %>>failed</option>
-                                    <option value="refunded" <%= "refunded".equals(order.getPaymentStatus()) ? "selected" : "" %>>refunded</option>
+                                    <option value="pending" <%= "pending".equals(order.getPaymentStatus()) ? "selected" : "" %>><%=paymentStatusLabel("pending")%></option>
+                                    <option value="unpaid" <%= "unpaid".equals(order.getPaymentStatus()) ? "selected" : "" %>><%=paymentStatusLabel("unpaid")%></option>
+                                    <option value="paid" <%= "paid".equals(order.getPaymentStatus()) ? "selected" : "" %>><%=paymentStatusLabel("paid")%></option>
+                                    <option value="failed" <%= "failed".equals(order.getPaymentStatus()) ? "selected" : "" %>><%=paymentStatusLabel("failed")%></option>
+                                    <option value="refunded" <%= "refunded".equals(order.getPaymentStatus()) ? "selected" : "" %>><%=paymentStatusLabel("refunded")%></option>
                                 </select>
                             </div>
                             <div class="col-md-3 d-grid">
