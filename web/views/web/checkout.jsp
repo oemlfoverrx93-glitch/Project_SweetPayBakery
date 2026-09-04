@@ -110,7 +110,8 @@
 
                         <div class="mb-3">
                             <label class="form-label">Địa chỉ giao hàng</label>
-                            <textarea name="shippingAddress" class="form-control" rows="3" required><%=HtmlUtil.escape(request.getParameter("shippingAddress"))%></textarea>
+                            <textarea name="shippingAddress" class="form-control" rows="3" maxlength="255"><%=HtmlUtil.escape(request.getParameter("shippingAddress"))%></textarea>
+                            <small class="text-muted">Bắt buộc khi giao tận nơi; có thể để trống khi nhận tại tiệm.</small>
                         </div>
 
                         <div class="row g-3">
@@ -126,6 +127,7 @@
                                 <select name="paymentMethod" class="form-select">
                                     <option value="COD" <%= "COD".equals(request.getParameter("paymentMethod")) || request.getParameter("paymentMethod") == null ? "selected" : "" %>>COD</option>
                                     <option value="BANK_TRANSFER" <%= "BANK_TRANSFER".equals(request.getParameter("paymentMethod")) ? "selected" : "" %>>Chuyển khoản</option>
+                                    <% if(com.sweetpay.util.VnpayConfig.configured()) { %><option value="VNPAY" <%= "VNPAY".equals(request.getParameter("paymentMethod")) ? "selected" : "" %>>VNPAY Sandbox (thử nghiệm)</option><% } %>
                                 </select>
                             </div>
                         </div>

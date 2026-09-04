@@ -50,7 +50,7 @@ public class AdminProductServlet extends HttpServlet {
         if ("edit".equals(action)) {
             int productId = parseInt(request.getParameter("id"), -1);
             if (productId > 0) {
-                Product editProduct = productDAO.getProductById(productId);
+                Product editProduct = productDAO.getProductByIdForAdmin(productId);
                 request.setAttribute("editProduct", editProduct);
             }
         }

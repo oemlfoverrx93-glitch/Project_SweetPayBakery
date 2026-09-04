@@ -8,6 +8,9 @@
         if ("pending".equals(status)) return "Chờ xác nhận";
         if ("confirmed".equals(status)) return "Đã xác nhận";
         if ("preparing".equals(status)) return "Đang chuẩn bị";
+        if ("ready_for_delivery".equals(status)) return "Sẵn sàng giao";
+        if ("delivery_failed".equals(status)) return "Giao chưa thành công";
+        if ("VNPAY".equals(status)) return "VNPAY Sandbox";
         if ("shipping".equals(status)) return "Đang giao";
         if ("ready_for_pickup".equals(status)) return "Chờ nhận tại tiệm";
         if ("completed".equals(status)) return "Hoàn tất";

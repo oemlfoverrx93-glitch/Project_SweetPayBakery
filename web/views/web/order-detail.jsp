@@ -10,6 +10,9 @@
         if ("pending".equals(status)) return "Chờ xác nhận";
         if ("confirmed".equals(status)) return "Đã xác nhận";
         if ("preparing".equals(status)) return "Đang chuẩn bị";
+        if ("ready_for_delivery".equals(status)) return "Sẵn sàng giao";
+        if ("delivery_failed".equals(status)) return "Giao chưa thành công";
+        if ("VNPAY".equals(status)) return "VNPAY Sandbox";
         if ("shipping".equals(status)) return "Đang giao";
         if ("ready_for_pickup".equals(status)) return "Chờ nhận tại tiệm";
         if ("completed".equals(status)) return "Hoàn tất";
@@ -62,6 +65,7 @@
     <div class="alert alert-success">Đơn hàng đã được ghi nhận thành công.</div>
     <% } %>
 
+    <jsp:include page="/WEB-INF/views/operations/customer-order.jsp"/>
     <div class="row g-4">
         <div class="col-lg-6">
             <div class="card h-100">

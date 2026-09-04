@@ -1,0 +1,6 @@
+<%@page pageEncoding="UTF-8"%>
+</div><footer class="ops-footer">SweetPay Bakery · Chăm chút từng chiếc bánh, trọn vẹn từng đơn hàng.</footer></main></div>
+<script>
+document.querySelectorAll('.ops-sidebar nav a').forEach(function(a){if(a.pathname===location.pathname)a.classList.add('active');});
+document.querySelectorAll('form[data-confirm]').forEach(function(form){form.addEventListener('submit',function(event){if(!confirm(form.dataset.confirm))event.preventDefault();});});
+</script></body></html>

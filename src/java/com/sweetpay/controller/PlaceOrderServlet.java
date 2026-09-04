@@ -59,7 +59,13 @@ public class PlaceOrderServlet extends HttpServlet {
         String paymentMethod = normalizePaymentMethod(request.getParameter("paymentMethod"));
         String voucherCode = normalize(request.getParameter("voucherCode"));
 
-        if (recipientName == null || recipientPhone == null || shippingAddress == null) {
+        if ("VNPAY".equals(paymentMethod) && !com.sweetpay.util.VnpayConfig.configured()) {
+            forwardCheckoutWithError(request,response,userId,calculateTotal(cart),voucherCode,"Thanh toán VNPAY thử nghiệm chưa được cấu hình. Vui lòng chọn phương thức khác.");
+            return;
+        }
+        if ("pickup".equals(receiveMethod)) shippingAddress = "Nhận tại cửa hàng SweetPay Bakery";
+
+        if (recipientName == null || recipientName.length()>100 || recipientPhone == null || !recipientPhone.matches("[0-9+][0-9 ]{8,18}") || shippingAddress == null || shippingAddress.length()>255 || note != null && note.length()>255) {
             forwardCheckoutWithError(request, response, userId, calculateTotal(cart), voucherCode,
                     "Vui lòng nhập đầy đủ thông tin nhận hàng.");
             return;
@@ -158,13 +164,15 @@ public class PlaceOrderServlet extends HttpServlet {
             Logger.getLogger(PlaceOrderServlet.class.getName()).log(Level.SEVERE,
                     "[PlaceOrder] Exception during placeOrder", ex);
             forwardCheckoutWithError(request, response, userId, totalAmount, voucherCode,
-                    "Lỗi hệ thống: " + ex.getMessage());
+                    "Không thể đặt hàng. Giá, tồn kho hoặc mã giảm giá có thể vừa thay đổi; vui lòng kiểm tra lại giỏ hàng.");
             return;
         }
 
         if (orderId > 0) {
             session.removeAttribute("cart");
-            if ("BANK_TRANSFER".equals(paymentMethod)) {
+            if ("VNPAY".equals(paymentMethod)) {
+                response.sendRedirect(request.getContextPath() + "/order-detail?id=" + orderId);
+            } else if ("BANK_TRANSFER".equals(paymentMethod)) {
                 response.sendRedirect(request.getContextPath() + "/payment?orderId=" + orderId);
             } else {
                 response.sendRedirect(request.getContextPath() + "/order-success?id=" + orderId);
@@ -210,6 +218,7 @@ public class PlaceOrderServlet extends HttpServlet {
         if ("BANK_TRANSFER".equalsIgnoreCase(normalized)) {
             return "BANK_TRANSFER";
         }
+        if ("VNPAY".equalsIgnoreCase(normalized)) return "VNPAY";
         return "COD";
     }
 

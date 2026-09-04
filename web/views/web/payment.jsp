@@ -108,7 +108,7 @@
                         <form action="<%=request.getContextPath()%>/payment" method="post" class="d-grid">
                             <input type="hidden" name="csrfToken" value="<%=csrfToken%>">
                             <input type="hidden" name="orderId" value="<%=orderId%>">
-                            <button type="submit" class="btn btn-confirm">Xác nhận đã chuyển khoản</button>
+                            <button type="submit" class="btn btn-confirm">Thông báo tôi đã chuyển khoản</button>
                         </form>
                         <a href="<%=request.getContextPath()%>/home"
                            class="btn btn-outline-secondary text-decoration-none text-center">

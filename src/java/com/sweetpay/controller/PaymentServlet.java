@@ -43,6 +43,11 @@ public class PaymentServlet extends HttpServlet {
             return;
         }
 
+        Payment existingPayment = new PaymentDAO().getPaymentByOrderId(orderId);
+        if (existingPayment == null || !"BANK_TRANSFER".equals(existingPayment.getPaymentMethod())
+                || "cancelled".equals(order.getOrderStatus()) || "paid".equals(existingPayment.getPaymentStatus()) || "refunded".equals(existingPayment.getPaymentStatus())) {
+            response.sendRedirect(request.getContextPath()+"/order-detail?id="+orderId); return;
+        }
         StoreBankAccountDAO accountDAO = new StoreBankAccountDAO();
         StoreBankAccount account = accountDAO.getDefaultAccount();
 
@@ -102,23 +107,13 @@ public class PaymentServlet extends HttpServlet {
             return;
         }
 
-        PaymentDAO paymentDAO = new PaymentDAO();
-        boolean updated = paymentDAO.updatePaymentStatusByOrderId(orderId, "paid");
-        if (!updated) {
-            Payment payment = new Payment();
-            payment.setOrderId(orderId);
-            payment.setPaymentMethod("BANK_TRANSFER");
-            payment.setAmount(order.getTotalAmount());
-            payment.setPaymentStatus("paid");
-            payment.setPaidAt(new Timestamp(System.currentTimeMillis()));
-            updated = paymentDAO.insertPayment(payment) > 0;
-        }
-
-        if (updated) {
-            response.sendRedirect(request.getContextPath() + "/order-success?id=" + orderId + "&payment=confirmed");
-            return;
-        }
-        response.sendRedirect(request.getContextPath() + "/payment?orderId=" + orderId + "&status=confirm-failed");
+        try {
+            new com.sweetpay.service.OrderWorkflowService().act((com.sweetpay.model.User)request.getSession().getAttribute("user"),
+                    orderId,"bank_notice","",0,"Khách thông báo đã chuyển khoản.","",false);
+            com.sweetpay.util.Forms.flash(request,"Đã gửi thông báo chuyển khoản. Cửa hàng sẽ đối chiếu giao dịch trước khi xác nhận thanh toán.",false);
+        } catch (IllegalArgumentException e) { com.sweetpay.util.Forms.flash(request,e.getMessage(),true); }
+        catch (Exception e) { getServletContext().log("Bank transfer notice failed",e); com.sweetpay.util.Forms.flash(request,"Chưa thể gửi thông báo. Vui lòng thử lại.",true); }
+        response.sendRedirect(request.getContextPath() + "/order-detail?id=" + orderId);
     }
 
     private Integer parseOrderId(HttpServletRequest request) {

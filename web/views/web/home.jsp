@@ -50,6 +50,7 @@
             <a href="#store-list">Cửa hàng</a>
             <% if (navUserId != null) { %><a href="<%=contextPath%>/order-history">Đơn hàng</a><% } %>
             <% if (navIsAdmin) { %><a href="<%=contextPath%>/admin/dashboard">Quản trị</a><% } %>
+            <% if ("store_staff".equals(session.getAttribute("roleName")) || "delivery_staff".equals(session.getAttribute("roleName"))) { %><a href="<%=contextPath%><%=com.sweetpay.util.AuthSessionUtil.home(session)%>">Công việc của tôi</a><% } %>
         </nav>
 
         <div class="home-nav-icons">

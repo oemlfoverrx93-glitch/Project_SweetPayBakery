@@ -185,7 +185,7 @@ public class PaymentDAO {
         }
 
         String value = paymentMethod.trim().toUpperCase();
-        if ("COD".equals(value) || "BANK_TRANSFER".equals(value)) {
+        if ("COD".equals(value) || "BANK_TRANSFER".equals(value) || "VNPAY".equals(value)) {
             return value;
         }
         return "COD";

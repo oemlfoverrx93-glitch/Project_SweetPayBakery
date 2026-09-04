@@ -22,7 +22,7 @@ public class ProductDAO {
             + "FROM products p "
             + "LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_main = 1 "
             + "LEFT JOIN inventory inv ON inv.product_id = p.product_id "
-            + "WHERE p.status = 1 ";
+            + "WHERE p.status = 1 AND EXISTS (SELECT 1 FROM categories visible_category WHERE visible_category.category_id=p.category_id AND visible_category.status=1) ";
 
     private static final String ADMIN_SELECT_NO_STOCK =
             "SELECT p.product_id, p.category_id, c.category_name, p.product_name, p.sku, p.slug, p.description, "
@@ -65,6 +65,14 @@ public class ProductDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public Product getProductByIdForAdmin(int id) {
+        try (Connection conn=DBContext.getConnection();
+             PreparedStatement ps=conn.prepareStatement(ADMIN_SELECT_WITH_STOCK + "AND p.product_id=?")) {
+            ps.setInt(1,id);
+            try(ResultSet rs=ps.executeQuery()) { return rs.next()?mapProduct(rs):null; }
+        } catch(Exception e) { throw new IllegalStateException("Không thể tải sản phẩm để chỉnh sửa.",e); }
     }
 
     public List<Product> getProductsByCategory(int categoryId) {
@@ -127,7 +135,7 @@ public class ProductDAO {
                 + "FROM products p "
                 + "LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_main = 1 "
                 + "LEFT JOIN inventory inv ON inv.product_id = p.product_id "
-                + "WHERE p.status = 1 "
+                + "WHERE p.status = 1 AND EXISTS (SELECT 1 FROM categories visible_category WHERE visible_category.category_id=p.category_id AND visible_category.status=1) "
                 + "ORDER BY p.created_at DESC, p.product_id DESC";
         return queryProducts(sql);
     }

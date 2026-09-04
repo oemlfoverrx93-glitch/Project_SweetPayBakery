@@ -1,3 +1,4 @@
+<%@page import="com.sweetpay.util.CsrfUtil"%>
 <%@page import="java.util.List"%>
 <%@page import="com.sweetpay.model.Product"%>
 <%@page import="com.sweetpay.model.Category"%>
@@ -27,7 +28,8 @@
 %>
 <div class="container-fluid py-4 px-3 px-md-4">
     <div class="admin-toolbar d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <h3 class="mb-0">Quản lý sản phẩm</h3>
+        <a href="<%=request.getContextPath()%>/admin/fulfillment" class="btn btn-outline-primary">Điều hành cửa hàng</a>
+<h3 class="mb-0">Quản lý sản phẩm</h3>
         <div class="d-flex gap-2">
             <a href="<%=request.getContextPath()%>/admin/dashboard" class="btn btn-outline-primary">Dashboard</a>
             <a href="<%=request.getContextPath()%>/admin/orders" class="btn btn-outline-secondary">Đơn hàng</a>
@@ -81,6 +83,7 @@
                         <%= editProduct != null ? "Cập nhật sản phẩm" : "Thêm sản phẩm mới" %>
                     </h5>
                     <form method="post" action="<%=request.getContextPath()%>/admin/products" enctype="multipart/form-data" class="row g-2">
+<input type="hidden" name="csrfToken" value="<%=CsrfUtil.getToken(session)%>">
                         <input type="hidden" name="action" value="<%= editProduct != null ? "update" : "create" %>">
                         <% if (editProduct != null) { %>
                         <input type="hidden" name="productId" value="<%=editProduct.getProductId()%>">
@@ -252,6 +255,7 @@
                                         Sửa
                                     </a>
                                     <form method="post" action="<%=request.getContextPath()%>/admin/products" class="d-inline">
+<input type="hidden" name="csrfToken" value="<%=CsrfUtil.getToken(session)%>">
                                         <input type="hidden" name="action" value="toggle-status">
                                         <input type="hidden" name="productId" value="<%=product.getProductId()%>">
                                         <input type="hidden" name="q" value="<%=HtmlUtil.escape(keyword)%>">

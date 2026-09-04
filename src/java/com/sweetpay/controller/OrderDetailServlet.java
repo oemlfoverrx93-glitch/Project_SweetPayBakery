@@ -46,6 +46,11 @@ public class OrderDetailServlet extends HttpServlet {
         Payment payment = new PaymentDAO().getPaymentByOrderId(orderId);
         request.setAttribute("order", order);
         request.setAttribute("payment", payment);
+        try {
+            com.sweetpay.dao.OperationsDAO operations = new com.sweetpay.dao.OperationsDAO();
+            request.setAttribute("operations",operations.detail((com.sweetpay.model.User)session.getAttribute("user"),orderId));
+            request.setAttribute("history",operations.history(orderId));
+        } catch (Exception e) { throw new ServletException(e); }
         request.getRequestDispatcher("/views/web/order-detail.jsp").forward(request, response);
     }
 }

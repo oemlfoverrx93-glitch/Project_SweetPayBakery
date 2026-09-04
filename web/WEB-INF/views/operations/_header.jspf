@@ -1,0 +1,24 @@
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@page import="java.util.*,com.sweetpay.util.*,com.sweetpay.model.User"%>
+<% String opsRole=AuthSessionUtil.role(session); String opsContext=request.getContextPath(); %>
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title><%=OpsView.e(request.getAttribute("pageTitle"))%> · SweetPay Bakery</title>
+<link rel="stylesheet" href="<%=opsContext%>/assets/css/operations.css"></head>
+<body class="ops-body"><div class="ops-layout">
+<aside class="ops-sidebar"><a class="ops-brand" href="<%=opsContext%><%=AuthSessionUtil.home(session)%>"><span class="ops-mark">S</span><span>SweetPay<small>BAKERY · ĐIỀU HÀNH</small></span></a>
+<div class="ops-nav-label">KHÔNG GIAN LÀM VIỆC</div><nav aria-label="Điều hướng quản lý">
+<% if("admin".equals(opsRole)) { %>
+<a href="<%=opsContext%>/admin/dashboard">Tổng quan</a><a href="<%=opsContext%>/admin/fulfillment">Đơn hàng & giao nhận</a>
+<a href="<%=opsContext%>/admin/reconciliation">Đối soát thanh toán</a><a href="<%=opsContext%>/admin/products">Sản phẩm</a>
+<a href="<%=opsContext%>/admin/categories">Danh mục bánh</a><a href="<%=opsContext%>/admin/vouchers">Mã giảm giá</a>
+<a href="<%=opsContext%>/staff/inventory">Tồn kho</a><a href="<%=opsContext%>/admin/staff">Nhân viên</a>
+<a href="<%=opsContext%>/admin/users">Khách hàng</a><a href="<%=opsContext%>/admin/reports">Báo cáo kinh doanh</a>
+<% } else if("store_staff".equals(opsRole)) { %>
+<a href="<%=opsContext%>/staff/orders">Đơn cần chuẩn bị</a><a href="<%=opsContext%>/staff/inventory">Tồn kho bánh</a>
+<% } else { %><a href="<%=opsContext%>/delivery/orders">Đơn giao của tôi</a><% } %>
+</nav><div class="ops-sidebar-bottom"><a href="<%=opsContext%>/home">Xem cửa hàng ↗</a><a href="<%=opsContext%>/logout">Đăng xuất</a></div></aside>
+<main class="ops-main"><header class="ops-top"><span>SweetPay / Vận hành cửa hàng</span><div><strong><%=OpsView.e(session.getAttribute("userFullName"))%></strong><small><%=OpsView.label(opsRole)%></small></div></header>
+<div class="ops-content"><div class="ops-heading"><div><p class="ops-eyebrow">SWEETPAY BAKERY</p><h1><%=OpsView.e(request.getAttribute("pageTitle"))%></h1></div><span class="ops-chip">Một cửa hàng · Một quy trình</span></div>
+<% Object opsMessage=session.getAttribute("opsMessage"); if(opsMessage!=null) { %>
+<div role="status" class="ops-alert <%=Boolean.TRUE.equals(session.getAttribute("opsError"))?"ops-alert-error":""%>"><%=OpsView.e(opsMessage)%></div>
+<% session.removeAttribute("opsMessage");session.removeAttribute("opsError"); } %>

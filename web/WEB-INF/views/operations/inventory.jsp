@@ -1,0 +1,8 @@
+<%@page pageEncoding="UTF-8"%>
+<%@ include file="_header.jspf" %>
+<% List<Map<String,Object>> rows=(List<Map<String,Object>>)request.getAttribute("rows"); %>
+<p class="ops-muted">Số lượng hiển thị là số bánh còn có thể bán, đã trừ các đơn đang giữ hàng. Ghi rõ lý do mỗi lần điều chỉnh.</p>
+<section class="ops-card"><div class="ops-table-wrap"><table><thead><tr><th>Sản phẩm</th><th>Còn có thể bán</th><th>Cập nhật gần nhất</th><th>Điều chỉnh</th></tr></thead><tbody>
+<% for(Map<String,Object> row:rows) { int id=OpsView.id(row,"product_id"),stock=OpsView.id(row,"quantity_in_stock"); %><tr><td><strong><%=OpsView.text(row,"product_name")%></strong><small>#<%=id%> · <%=OpsView.active(row)?"Đang bán":"Đã ẩn"%></small></td><td><strong><%=stock%> bánh</strong><% if(stock<=OpsView.id(row,"min_stock_level")) { %><span class="ops-badge delivery_failed">Sắp hết hàng</span><% } %></td><td><%=OpsView.date(row.get("updated_at"))%></td><td>
+<form action="<%=opsContext%>/staff/inventory" method="post" class="ops-stock-form"><%@ include file="_csrf.jspf" %><input type="hidden" name="productId" value="<%=id%>"><input type="hidden" name="expected" value="<%=stock%>"><input type="number" name="quantity" required min="0" max="1000000" value="<%=stock%>" aria-label="Số lượng mới cho sản phẩm <%=id%>"><input name="note" required maxlength="500" placeholder="Lý do: bổ sung bánh, kiểm kê..." aria-label="Lý do điều chỉnh sản phẩm <%=id%>"><button>Lưu</button></form></td></tr><% } if(rows.isEmpty()) { %><tr><td colspan="4" class="ops-empty">Chưa có sản phẩm trong kho.</td></tr><% } %>
+</tbody></table></div></section><%@ include file="_footer.jspf" %>

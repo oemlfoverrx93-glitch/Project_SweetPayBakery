@@ -21,14 +21,20 @@ public class DBContext {
         addIfNotBlank(urls, System.getenv("SWEETPAY_DB_URL"));
         addIfNotBlank(urls, System.getProperty("sweetpay.db.url"));
 
-        // Try by fixed port first to avoid named-instance lookup timeout when SQL Browser is disabled.
-        urls.add(URL_BY_PORT);
-        urls.add(URL_BY_INSTANCE);
+        // Never fall back to another database when one was explicitly configured.
+        if (urls.isEmpty()) {
+            urls.add(URL_BY_PORT);
+            urls.add(URL_BY_INSTANCE);
+        }
 
         SQLException lastException = null;
         for (String url : urls) {
             try {
-                Connection connection = DriverManager.getConnection(url, USER, PASSWORD);
+                String configuredUser = System.getProperty("sweetpay.db.user",System.getenv("SWEETPAY_DB_USER"));
+                String configuredPassword = System.getProperty("sweetpay.db.password",System.getenv("SWEETPAY_DB_PASSWORD"));
+                Connection connection = DriverManager.getConnection(url,
+                        configuredUser == null ? USER : configuredUser,
+                        configuredPassword == null ? PASSWORD : configuredPassword);
                 if (!connectionInfoLogged) {
                     System.out.println("[DBContext] Connected URL: " + url);
                     connectionInfoLogged = true;

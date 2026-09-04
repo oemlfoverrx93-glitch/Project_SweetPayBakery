@@ -1,4 +1,7 @@
+<%@page import="java.util.List"%>
 <%@page import="java.math.BigDecimal"%>
+<%@page import="com.sweetpay.model.CustomerSpending"%>
+<%@page import="com.sweetpay.util.HtmlUtil"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="vi">
@@ -15,6 +18,10 @@
     int totalOrders = request.getAttribute("totalOrders") instanceof Integer ? (Integer) request.getAttribute("totalOrders") : 0;
     int totalUsers = request.getAttribute("totalUsers") instanceof Integer ? (Integer) request.getAttribute("totalUsers") : 0;
     BigDecimal revenue = request.getAttribute("completedRevenue") instanceof BigDecimal ? (BigDecimal) request.getAttribute("completedRevenue") : BigDecimal.ZERO;
+    List<CustomerSpending> topCustomerSpendings = (List<CustomerSpending>) request.getAttribute("topCustomerSpendings");
+    String spendingStartDate = request.getAttribute("spendingStartDate") instanceof String ? (String) request.getAttribute("spendingStartDate") : "";
+    String spendingEndDate = request.getAttribute("spendingEndDate") instanceof String ? (String) request.getAttribute("spendingEndDate") : "";
+    String spendingDateNotice = request.getAttribute("spendingDateNotice") instanceof String ? (String) request.getAttribute("spendingDateNotice") : "";
 %>
 <div class="container-fluid">
     <div class="row">
@@ -24,6 +31,13 @@
             <a href="<%=request.getContextPath()%>/admin/products">Quản lý sản phẩm</a>
             <a href="<%=request.getContextPath()%>/admin/orders">Quản lý đơn hàng</a>
             <a href="<%=request.getContextPath()%>/admin/users">Quản lý khách hàng</a>
+            <a href="<%=request.getContextPath()%>/admin/fulfillment">Điều hành & giao hàng</a>
+            <a href="<%=request.getContextPath()%>/admin/reconciliation">Đối soát thanh toán</a>
+            <a href="<%=request.getContextPath()%>/admin/categories">Danh mục bánh</a>
+            <a href="<%=request.getContextPath()%>/admin/vouchers">Mã giảm giá</a>
+            <a href="<%=request.getContextPath()%>/admin/staff">Nhân viên</a>
+            <a href="<%=request.getContextPath()%>/staff/inventory">Tồn kho</a>
+            <a href="<%=request.getContextPath()%>/admin/reports">Báo cáo kinh doanh</a>
             <a href="<%=request.getContextPath()%>/products">Xem trang sản phẩm</a>
             <a href="<%=request.getContextPath()%>/home">Về trang chủ</a>
             <a href="<%=request.getContextPath()%>/logout">Đăng xuất</a>
@@ -66,6 +80,80 @@
                 <div class="card-body">
                     <h5 class="mb-3">Doanh thu đơn hoàn thành</h5>
                     <h2 class="text-success"><%=String.format("%,.0f", revenue)%> VNĐ</h2>
+                </div>
+            </div>
+
+            <div class="card stat-card mt-4">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                        <div>
+                            <h5 class="mb-1">Top 10 khách hàng chi tiêu cao nhất</h5>
+                            <p class="text-muted mb-0">Tính theo các đơn hàng đã hoàn thành trong khoảng ngày đã chọn.</p>
+                        </div>
+                        <form method="get" action="<%=request.getContextPath()%>/admin/dashboard" class="row g-2 align-items-end">
+                            <div class="col-sm-auto">
+                                <label class="form-label mb-1">Từ ngày</label>
+                                <input type="date" name="startDate" class="form-control"
+                                       value="<%=HtmlUtil.escape(spendingStartDate)%>">
+                            </div>
+                            <div class="col-sm-auto">
+                                <label class="form-label mb-1">Đến ngày</label>
+                                <input type="date" name="endDate" class="form-control"
+                                       value="<%=HtmlUtil.escape(spendingEndDate)%>">
+                            </div>
+                            <div class="col-sm-auto d-grid">
+                                <button type="submit" class="btn btn-primary px-4">Lọc</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <% if (!spendingDateNotice.isEmpty()) { %>
+                    <div class="alert alert-warning py-2"><%=HtmlUtil.escape(spendingDateNotice)%></div>
+                    <% } %>
+
+                    <% if (topCustomerSpendings == null || topCustomerSpendings.isEmpty()) { %>
+                    <div class="alert alert-info mb-0">Chưa có khách hàng phát sinh đơn hoàn thành trong khoảng thời gian này.</div>
+                    <% } else { %>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Khách hàng</th>
+                                <th>Email</th>
+                                <th>SĐT</th>
+                                <th>Số đơn</th>
+                                <th>Tổng chi tiêu</th>
+                                <th>Đơn đầu</th>
+                                <th>Đơn gần nhất</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <% int rank = 1; %>
+                            <% for (CustomerSpending customer : topCustomerSpendings) { %>
+                            <%
+                                BigDecimal totalSpent = customer.getTotalSpent() == null ? BigDecimal.ZERO : customer.getTotalSpent();
+                                String firstOrderDate = customer.getFirstOrderDate() == null ? "-" : customer.getFirstOrderDate().toLocalDateTime().toLocalDate().toString();
+                                String lastOrderDate = customer.getLastOrderDate() == null ? "-" : customer.getLastOrderDate().toLocalDateTime().toLocalDate().toString();
+                            %>
+                            <tr>
+                                <td><strong><%=rank++%></strong></td>
+                                <td>
+                                    <strong><%=HtmlUtil.escape(customer.getFullName())%></strong>
+                                    <div class="text-muted small">ID: <%=customer.getUserId()%></div>
+                                </td>
+                                <td><%=HtmlUtil.escape(customer.getEmail())%></td>
+                                <td><%=HtmlUtil.escapeOr(customer.getPhone(), "-")%></td>
+                                <td><span class="badge bg-dark"><%=customer.getOrderCount()%></span></td>
+                                <td class="text-success fw-bold"><%=String.format("%,.0f", totalSpent)%> VNĐ</td>
+                                <td><%=HtmlUtil.escape(firstOrderDate)%></td>
+                                <td><%=HtmlUtil.escape(lastOrderDate)%></td>
+                            </tr>
+                            <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <% } %>
                 </div>
             </div>
         </main>

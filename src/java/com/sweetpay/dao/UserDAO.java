@@ -116,7 +116,7 @@ public class UserDAO {
             return false;
         }
 
-        String sql = "UPDATE users SET status = ? WHERE user_id = ?";
+        String sql = "UPDATE users SET status = ? WHERE user_id = ? AND role_id IN(SELECT role_id FROM roles WHERE role_name='customer')";
         try (Connection conn = DBContext.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setBoolean(1, status);
@@ -171,7 +171,7 @@ public class UserDAO {
             } else {
                 ps.setNull(4, java.sql.Types.VARCHAR);
             }
-            ps.setString(5, password.trim());
+            ps.setString(5, com.sweetpay.util.PasswordUtil.hash(password.trim()));
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -205,6 +205,8 @@ public class UserDAO {
         if (stored.isEmpty()) {
             return false;
         }
+
+        if (stored.startsWith("pbkdf2$")) return com.sweetpay.util.PasswordUtil.verify(raw, stored);
 
         if (stored.equals(raw)) {
             return true;

@@ -23,7 +23,7 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (AuthSessionUtil.getUserId(session) != null) {
-            response.sendRedirect(request.getContextPath() + "/home");
+            response.sendRedirect(request.getContextPath() + AuthSessionUtil.home(session));
             return;
         }
 
@@ -50,6 +50,7 @@ public class LoginServlet extends HttpServlet {
         }
 
         HttpSession session = request.getSession(true);
+        request.changeSessionId();
         AuthSessionUtil.setAuthenticatedUser(session, user);
 
         response.sendRedirect(request.getContextPath() + resolvePostLoginPath(session, redirect));
@@ -64,9 +65,10 @@ public class LoginServlet extends HttpServlet {
         Object fromFilter = session.getAttribute("afterLoginRedirect");
         if (fromFilter != null) {
             session.removeAttribute("afterLoginRedirect");
-            return sanitizeRedirect(String.valueOf(fromFilter));
+            String destination=sanitizeRedirect(String.valueOf(fromFilter));
+            if(!destination.isEmpty()) return destination;
         }
-        return "/home";
+        return AuthSessionUtil.home(session);
     }
 
     private String sanitizeRedirect(String redirect) {
@@ -80,7 +82,7 @@ public class LoginServlet extends HttpServlet {
         if (!value.startsWith("/")) {
             return "";
         }
-        if (value.startsWith("//") || value.contains("://")) {
+        if (value.startsWith("//") || value.contains("://") || value.contains("\\") || value.contains("\r") || value.contains("\n")) {
             return "";
         }
         return value;

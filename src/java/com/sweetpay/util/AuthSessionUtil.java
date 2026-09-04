@@ -60,4 +60,18 @@ public final class AuthSessionUtil {
         Object roleName = session.getAttribute("roleName");
         return roleName != null && "admin".equalsIgnoreCase(String.valueOf(roleName));
     }
+
+    public static String role(HttpSession session) {
+        Object value = session == null ? null : session.getAttribute("roleName");
+        return value == null ? "" : String.valueOf(value);
+    }
+
+    public static String home(HttpSession session) {
+        switch (role(session)) {
+            case "admin": return "/admin/dashboard";
+            case "store_staff": return "/staff/orders";
+            case "delivery_staff": return "/delivery/orders";
+            default: return "/home";
+        }
+    }
 }

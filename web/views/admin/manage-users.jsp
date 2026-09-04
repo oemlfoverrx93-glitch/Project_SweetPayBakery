@@ -1,3 +1,4 @@
+<%@page import="com.sweetpay.util.CsrfUtil"%>
 <%@page import="java.util.List"%>
 <%@page import="com.sweetpay.model.User"%>
 <%@page import="com.sweetpay.util.HtmlUtil"%>
@@ -25,7 +26,8 @@
 %>
 <div class="container-fluid py-4 px-3 px-md-4">
     <div class="admin-toolbar d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <h3 class="mb-0">Quản lý khách hàng</h3>
+        <a href="<%=request.getContextPath()%>/admin/fulfillment" class="btn btn-outline-primary">Điều hành cửa hàng</a>
+<h3 class="mb-0">Quản lý khách hàng</h3>
         <div class="d-flex gap-2">
             <a href="<%=request.getContextPath()%>/admin/dashboard" class="btn btn-outline-primary">Dashboard</a>
             <a href="<%=request.getContextPath()%>/admin/products" class="btn btn-outline-secondary">Sản phẩm</a>
@@ -98,6 +100,7 @@
                     </td>
                     <td>
                         <form method="post" action="<%=request.getContextPath()%>/admin/users" class="d-flex gap-2">
+<input type="hidden" name="csrfToken" value="<%=CsrfUtil.getToken(session)%>">
                             <input type="hidden" name="userId" value="<%=user.getUserId()%>">
                             <input type="hidden" name="q" value="<%=HtmlUtil.escape(keyword)%>">
                             <input type="hidden" name="statusFilter" value="<%=HtmlUtil.escape(selectedStatus)%>">

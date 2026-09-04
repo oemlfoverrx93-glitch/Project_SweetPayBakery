@@ -11,6 +11,80 @@ erDiagram
     orders ||--o{ order_details : "gom_chi_tiet"
     products ||--o{ order_details : "duoc_dat"
     orders ||--|| payments : "thanh_toan"
+    orders ||--o| deliveries : "phan_cong_giao"
+    users ||--o{ deliveries : "nhan_vien_giao"
+    orders ||--o| cancellation_requests : "yeu_cau_huy"
+    orders ||--o{ order_events : "lich_su_xu_ly"
+    users o|--o{ order_events : "thao_tac"
+    orders ||--o{ payment_attempts : "lan_thanh_toan"
+    orders ||--o{ payment_reconciliations : "doi_soat"
+    users ||--o{ payment_reconciliations : "xac_nhan"
+    products ||--o{ inventory_events : "lich_su_kiem_kho"
+    users ||--o{ inventory_events : "dieu_chinh"
+
+    deliveries {
+        INT order_id PK,FK
+        INT driver_id FK
+        DATETIME2 assigned_at
+        DATETIME2 picked_up_at
+        DATETIME2 delivered_at
+        DATETIME2 failed_at
+        NVARCHAR failure_reason
+        DATETIME2 cod_collected_at
+        DATETIME2 cod_remitted_at
+        INT cod_remitted_by FK
+        NVARCHAR cod_remit_reference
+    }
+    cancellation_requests {
+        INT order_id PK,FK
+        NVARCHAR reason
+        VARCHAR status
+        DATETIME2 requested_at
+        DATETIME2 reviewed_at
+        INT reviewed_by FK
+        NVARCHAR review_note
+    }
+    order_events {
+        INT event_id PK
+        INT order_id FK
+        INT actor_id FK
+        VARCHAR action
+        VARCHAR from_status
+        VARCHAR to_status
+        NVARCHAR note
+        DATETIME2 created_at
+    }
+    payment_attempts {
+        VARCHAR reference PK
+        INT order_id FK
+        DECIMAL amount
+        VARCHAR status
+        VARCHAR transaction_no
+        VARCHAR response_code
+        BIT duplicate_payment
+        DATETIME2 created_at
+        DATETIME2 expires_at
+        DATETIME2 completed_at
+    }
+    payment_reconciliations {
+        INT reconciliation_id PK
+        INT order_id FK
+        VARCHAR kind
+        DECIMAL amount
+        NVARCHAR reference
+        NVARCHAR note
+        INT actor_id FK
+        DATETIME2 created_at
+    }
+    inventory_events {
+        INT event_id PK
+        INT product_id FK
+        INT actor_id FK
+        INT quantity_before
+        INT quantity_after
+        NVARCHAR note
+        DATETIME2 created_at
+    }
 
     roles {
         INT role_id PK

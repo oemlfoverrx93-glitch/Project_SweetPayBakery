@@ -106,6 +106,31 @@ public class OrderDAO {
             orderDetailDAO.createOrderDetailsTableIfMissing(conn);
             paymentDAO.createPaymentsTableIfMissing(conn);
 
+            // Reprice from locked database rows, never from a stale session cart.
+            java.math.BigDecimal subtotal = java.math.BigDecimal.ZERO;
+            orderDetails.sort(java.util.Comparator.comparingInt(OrderDetail::getProductId));
+            for (OrderDetail detail : orderDetails) {
+                if (detail == null || detail.getQuantity() <= 0) throw new IllegalArgumentException("Số lượng không hợp lệ.");
+                java.util.Map<String,Object> product = com.sweetpay.util.Sql.one(conn,
+                        "SELECT p.price,p.sale_price FROM products p WITH(UPDLOCK,HOLDLOCK) JOIN categories c ON c.category_id=p.category_id WHERE p.product_id=? AND p.status=1 AND c.status=1", detail.getProductId());
+                if (product == null) throw new IllegalArgumentException("Một sản phẩm đã ngừng bán. Vui lòng kiểm tra giỏ hàng.");
+                java.math.BigDecimal price = (java.math.BigDecimal)(product.get("sale_price") != null ? product.get("sale_price") : product.get("price"));
+                detail.setUnitPrice(price);
+                subtotal = subtotal.add(price.multiply(java.math.BigDecimal.valueOf(detail.getQuantity())));
+            }
+            order.setSubtotal(subtotal);
+            order.setDiscountAmount(java.math.BigDecimal.ZERO);
+            if (order.getVoucherId() != null) {
+                java.util.Map<String,Object> voucher = com.sweetpay.util.Sql.one(conn,
+                        "SELECT code FROM vouchers WITH(UPDLOCK,HOLDLOCK) WHERE voucher_id=?",order.getVoucherId());
+                if (voucher == null) throw new IllegalArgumentException("Mã giảm giá không còn hợp lệ.");
+                VoucherDAO.VoucherValidationResult validation = voucherDAO.validateVoucher(conn,String.valueOf(voucher.get("code")),subtotal);
+                if (!validation.isValid()) throw new IllegalArgumentException(validation.getMessage());
+                order.setDiscountAmount(validation.getDiscountAmount());
+            }
+            order.setTotalAmount(subtotal.subtract(order.getDiscountAmount()).add(defaultMoney(order.getShippingFee())).max(java.math.BigDecimal.ZERO));
+            if (payment != null) payment.setAmount(order.getTotalAmount());
+
             if (order.getVoucherId() != null && order.getVoucherId() > 0) {
                 if (!voucherDAO.decreaseVoucherQuantity(conn, order.getVoucherId())) {
                     conn.rollback();
@@ -511,9 +536,7 @@ public class OrderDAO {
         if (conn == null || orderDetails == null || orderDetails.isEmpty()) {
             return true;
         }
-        if (!inventoryTableExists(conn)) {
-            return true;
-        }
+        if (!inventoryTableExists(conn)) throw new SQLException("Inventory table is required.");
 
         String sql = "UPDATE inventory "
                 + "SET quantity_in_stock = quantity_in_stock - ?, updated_at = GETDATE() "
@@ -529,9 +552,6 @@ public class OrderDAO {
                 ps.setInt(3, detail.getQuantity());
                 int updatedRows = ps.executeUpdate();
                 if (updatedRows <= 0) {
-                    if (!inventoryRowExists(conn, detail.getProductId())) {
-                        continue;
-                    }
                     return false;
                 }
             }

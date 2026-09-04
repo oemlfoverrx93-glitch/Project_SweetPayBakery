@@ -34,6 +34,12 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
+        com.sweetpay.dao.ProductDAO products=new com.sweetpay.dao.ProductDAO();
+        for(CartItem item:cart.values()) {
+            com.sweetpay.model.Product current=products.getProductById(item.getProduct().getProductId());
+            if(current==null) { response.sendRedirect(request.getContextPath()+"/cart?error=product-unavailable"); return; }
+            item.setProduct(current);
+        }
         BigDecimal subtotal = calculateGrandTotal(cart);
         BigDecimal discountAmount = BigDecimal.ZERO;
         BigDecimal totalAfterDiscount = subtotal;
