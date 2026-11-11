@@ -2,7 +2,7 @@
 
 ## Chạy bằng NetBeans
 
-1. Clone hoặc tải mã nguồn từ nhánh `nhom-3-buoi-4`. Trong NetBeans, chọn **File → Open Project** và mở thư mục chứa `build.xml` và `nbproject`.
+1. Clone hoặc tải mã nguồn của repo. Trong NetBeans, chọn **File → Open Project** và mở thư mục chứa `build.xml` và `nbproject`.
 2. Dùng JDK 21 và Apache Tomcat 9. Nếu NetBeans báo thiếu server, mở **Project Properties → Run** và chọn Tomcat 9 đã đăng ký ở **Services → Servers**.
 3. Chọn **Clean and Build**. Lần đầu, Ant tải các thư viện cần thiết từ Maven Central. Sau đó chọn **Run Project** để mở trang chủ ở context `/SweetBakery-Nhom3/`.
 
