@@ -7,9 +7,22 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="SweetBakery" default="default" basedir=".">
-    <description>Builds, tests, and runs the project SweetBakery.</description>
+<project name="SweetBakery_Nhóm_3" default="default" basedir=".">
+    <description>Builds, tests, and runs the project SweetBakery Nhóm 3.</description>
     <import file="nbproject/build-impl.xml"/>
+
+    <target name="prepare-dependencies" description="Download the project libraries from Maven Central.">
+        <property name="maven.central" value="https://repo.maven.apache.org/maven2"/>
+        <mkdir dir="web/WEB-INF/lib"/>
+        <get dest="web/WEB-INF/lib" skipexisting="true" retries="2" maxtime="60">
+            <url url="${maven.central}/com/google/zxing/core/3.5.3/core-3.5.3.jar"/>
+            <url url="${maven.central}/com/google/zxing/javase/3.5.3/javase-3.5.3.jar"/>
+            <url url="${maven.central}/com/microsoft/sqlserver/mssql-jdbc/13.4.0.jre11/mssql-jdbc-13.4.0.jre11.jar"/>
+        </get>
+    </target>
+
+    <target name="-pre-compile" depends="prepare-dependencies"/>
+    <target name="-pre-compile-single" depends="prepare-dependencies"/>
     <!--
 
     There exist several targets which are by default empty and which can be 
